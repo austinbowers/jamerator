@@ -1,15 +1,6 @@
 import { Stack } from 'expo-router/stack';
-import { Image } from 'react-native';
 import React from "react";
-
-function LogoTitle() {
-    return (
-        <Image
-            source={require('../assets/images/Jamerator.png')}
-            style={{ width: 100, height: 30, paddingBottom: 8, resizeMode: 'contain'}}
-        />
-    );
-}
+import LogoTitle from "@/components/LogoTitle";
 
 export default function Layout() {
   return (

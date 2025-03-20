@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Image, ScrollView, StyleSheet } from 'react-native';
 import ChordDisplay from "@/components/ChordDisplay";
+import OpenAi from "@/components/OpenAi";
 
 export default function Index() {
     return (
