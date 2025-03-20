@@ -1,5 +1,5 @@
 import React, {useMemo, useState} from 'react';
-import {View, Text, StyleSheet, Dimensions, Button, ActivityIndicator, TouchableOpacity} from 'react-native';
+import {View, Text, StyleSheet, ActivityIndicator, TouchableOpacity} from 'react-native';
 import { fetchChatCompletion} from "@/scripts/api";
 
 
@@ -121,7 +121,7 @@ const ChordDisplay = () => {
             )}
             <View>
                 <View style={{ marginTop: 64, marginBottom: 40, flexDirection: 'row', justifyContent: 'space-between'}}>
-                    {visualChords.map((chord, index) => (
+                    {visualChords.map((chord) => (
                         <Text style={{color: 'white', flexGrow: 1, fontSize: 24, fontWeight: 'bold', marginRight: 24}} key={chord.name}>
                             {chord.name}
                         </Text>
@@ -147,7 +147,7 @@ const ChordDisplay = () => {
                                 )}
 
                                 {/* Loop through each string to display finger positions */}
-                                {['E', 'A', 'D', 'G', 'B', 'e'].map((string, stringIndex) => {
+                                {['E', 'A', 'D', 'G', 'B', 'e'].map((string) => {
                                     const position = chord.visualPositions.find(
                                         (p) => p.string === string
                                     );
@@ -165,7 +165,7 @@ const ChordDisplay = () => {
                                                 </View>
                                             ) : position && position.fret === -1 && index === 0 ? (
                                                 <View>
-                                                    <Text style={styles.unplayedStringStyle}>
+                                                    <Text style={styles.unPlayedStringStyle}>
                                                         X
                                                     </Text>
                                                 </View>
@@ -280,7 +280,7 @@ const styles = StyleSheet.create({
         borderRadius: 100,
         fontWeight: 'bold',
     },
-    unplayedStringStyle: {
+    unPlayedStringStyle: {
         color: '#85B59C',
         width: 22,
         height: 22,

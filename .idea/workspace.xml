@@ -5,19 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="02763109-485d-47ff-9d66-d1ca548bcfb5" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/app.config.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/components/LogoTitle.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/components/OpenAi.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/scripts/api.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(tabs)/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(tabs)/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/_layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/_layout.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/components/ChordDisplay.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/ChordDisplay.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tsconfig.json" beforeDir="false" afterPath="$PROJECT_DIR$/tsconfig.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -88,7 +76,7 @@
       <updated>1742174165110</updated>
       <workItem from="1742174166331" duration="1298000" />
       <workItem from="1742175506313" duration="17321000" />
-      <workItem from="1742428396687" duration="4005000" />
+      <workItem from="1742428396687" duration="4303000" />
     </task>
     <servers />
   </component>
