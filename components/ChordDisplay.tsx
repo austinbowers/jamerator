@@ -1,7 +1,7 @@
 import React, {useMemo, useState} from 'react';
 import {View, Text, StyleSheet, ActivityIndicator, TouchableOpacity} from 'react-native';
 import { fetchChatCompletion} from "@/scripts/api";
-
+import { Picker } from "@react-native-picker/picker";
 
 const ChordDisplay = () => {
 
@@ -55,7 +55,11 @@ const ChordDisplay = () => {
             ],
         },
     ]);
-    const prompt = "using references from music theory and common finger positions for guitar chords, return me an array (without the ```json header) of a random jazz guitar chord progression and only return the array starting from '[' using this strict data structure format for the chords and double check each chord finger positioning and barred fret for accuracy. a fret of -1 represents a string that should not be played. a finger of 1 is index finger, a finger of 2 is middle finger, a finger of 3 is ring finger, a finger of 4 is pinky. Double check and make sure finger number is accurate of what a human can actually play.:\n" +
+
+    const [selectedGenre, setSelectedGenre] = useState("");
+
+    const prompt = `using references from music theory and common finger positions for guitar chords, return me an array (without the \`\`\`json header) of a random ${selectedGenre ?? ''} guitar chord progression and only return the array starting from '[' using this strict data structure format for the chords and double check each chord finger positioning and barred fret for accuracy. a fret of -1 represents a string that should not be played. a finger of 1 indicates pointer finger, a finger of 2 indicates middle finger, a finger of 3 indicates ring finger, a finger of 4 indicates pinky. Double check and make sure finger number is accurate of what a human can actually play.:
+` +
         "    {\n" +
         "        \"name\": \"C#m\",\n" +
         "        \"barredFret\": 4,\n" +
@@ -108,15 +112,26 @@ const ChordDisplay = () => {
         });
     }, [progression]);
 
+
     return (
         <View style={styles.container}>
+            <Picker
+                selectedValue={selectedGenre}
+                onValueChange={(itemValue) => setSelectedGenre(itemValue)}
+                style={{ height: 50, width: 300, marginBottom: 180 }}
+            >
+                <Picker.Item label="Rock" value="rock" />
+                <Picker.Item label="Blues" value="blues" />
+                <Picker.Item label="Jazz" value="jazz" />
+                <Picker.Item label="Pop" value="pop" />
+            </Picker>
             {chordsLoading ? (
                 <View style={{marginTop: 20}}>
                     <ActivityIndicator size="large" color="#85B59C" />
                 </View>
             ) : (
                 <TouchableOpacity onPress={getCompletion} style={styles.buttonStyle}>
-                    <Text style={{fontWeight: 'bold'}}>Generate Jam</Text>
+                    <Text style={{fontWeight: 'bold',fontSize: 16,  textAlign: 'center'}}>Generate Jam</Text>
                 </TouchableOpacity>
             )}
             <View>
@@ -169,6 +184,12 @@ const ChordDisplay = () => {
                                                         X
                                                     </Text>
                                                 </View>
+                                            ) : position && position.fret === 0 && index === 0 ? (
+                                                <View>
+                                                    <Text style={styles.unPlayedStringStyle}>
+                                                        O
+                                                    </Text>
+                                                </View>
                                             ) : null}
                                         </View>
                                     );
@@ -188,10 +209,10 @@ const styles = StyleSheet.create({
         backgroundColor: '#85B59C',
         borderRadius: 6,
         marginTop: 20,
-        width: 'auto',
+        width: 280,
         alignItems: 'center',
         alignContent: 'center',
-        padding: 10,
+        padding: 16,
     },
     container: {
         flex: 1,

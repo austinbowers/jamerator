@@ -1,6 +1,8 @@
-import { View } from 'react-native';
+import { ScrollView, Text } from 'react-native';
 export default function Chords() {
     return (
-        <View style={{ flex: 1, justifyContent: 'space-around' }}></View>
+        <ScrollView contentContainerStyle={{ flex: 1, alignItems: 'center', backgroundColor: '#0A130E' }}>
+            <Text style={{color: 'white', marginTop: 200, fontSize: 20 }}>More coming soon...</Text>
+        </ScrollView>
     );
 }
