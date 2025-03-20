@@ -57,8 +57,9 @@ const ChordDisplay = () => {
     ]);
 
     const [selectedGenre, setSelectedGenre] = useState("");
+    const [selectedKey, setSelectedKey] = useState("Random");
 
-    const prompt = `using references from music theory and common finger positions for guitar chords, return me an array (without the \`\`\`json header) of a random ${selectedGenre ?? ''} guitar chord progression and only return the array starting from '[' using this strict data structure format for the chords and double check each chord finger positioning and barred fret for accuracy. a fret of -1 represents a string that should not be played. a finger of 1 indicates pointer finger, a finger of 2 indicates middle finger, a finger of 3 indicates ring finger, a finger of 4 indicates pinky. Double check and make sure finger number is accurate of what a human can actually play.:
+    const prompt = `using references from music theory and common finger positions for guitar chords, return me an array (without the \`\`\`json header) of a random ${selectedGenre ?? ''} guitar chord progression ${selectedKey !== 'Random' ? 'in the key of ' + selectedKey : 'in a random key'} and only return the array starting from '[' using this strict data structure format for the chords and double check each chord finger positioning and barred fret for accuracy. a fret of -1 represents a string that should not be played. a finger of 1 indicates pointer finger, a finger of 2 indicates middle finger, a finger of 3 indicates ring finger, a finger of 4 indicates pinky. Double check and make sure finger number is accurate of what a human can actually play. 'bars' is which number bar in the progression this chord should be played during.:
 ` +
         "    {\n" +
         "        \"name\": \"C#m\",\n" +
@@ -71,6 +72,7 @@ const ChordDisplay = () => {
         "            { \"string\": \"B\", \"fret\": 5, \"finger\": 2 },\n" +
         "            { \"string\": \"e\", \"fret\": 4, \"finger\": 1 }\n" +
         "        ],\n" +
+        "        \"bars\": [1],\n" +
         "    },";
 
     const [chordsLoading, setChordsLoading] = useState(false)
@@ -115,6 +117,41 @@ const ChordDisplay = () => {
 
     return (
         <View style={styles.container}>
+            <Picker
+                selectedValue={selectedKey}
+                onValueChange={(itemValue) => setSelectedKey(itemValue)}
+                style={{ height: 50, width: 300, marginBottom: 180 }}
+            >
+                <Picker.Item label="Random Key" value="Random" />
+
+                {/* Major Keys */}
+                <Picker.Item label="C Major" value="C" />
+                <Picker.Item label="C# Major / Db Major" value="C#" />
+                <Picker.Item label="D Major" value="D" />
+                <Picker.Item label="D# Major / Eb Major" value="D#" />
+                <Picker.Item label="E Major" value="E" />
+                <Picker.Item label="F Major" value="F" />
+                <Picker.Item label="F# Major / Gb Major" value="F#" />
+                <Picker.Item label="G Major" value="G" />
+                <Picker.Item label="G# Major / Ab Major" value="G#" />
+                <Picker.Item label="A Major" value="A" />
+                <Picker.Item label="A# Major / Bb Major" value="A#" />
+                <Picker.Item label="B Major" value="B" />
+
+                {/* Minor Keys */}
+                <Picker.Item label="C Minor" value="Cm" />
+                <Picker.Item label="C# Minor / Db Minor" value="C#m" />
+                <Picker.Item label="D Minor" value="Dm" />
+                <Picker.Item label="D# Minor / Eb Minor" value="D#m" />
+                <Picker.Item label="E Minor" value="Em" />
+                <Picker.Item label="F Minor" value="Fm" />
+                <Picker.Item label="F# Minor / Gb Minor" value="F#m" />
+                <Picker.Item label="G Minor" value="Gm" />
+                <Picker.Item label="G# Minor / Ab Minor" value="G#m" />
+                <Picker.Item label="A Minor" value="Am" />
+                <Picker.Item label="A# Minor / Bb Minor" value="A#m" />
+                <Picker.Item label="B Minor" value="Bm" />
+            </Picker>
             <Picker
                 selectedValue={selectedGenre}
                 onValueChange={(itemValue) => setSelectedGenre(itemValue)}
