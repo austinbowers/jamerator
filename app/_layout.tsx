@@ -6,7 +6,7 @@ export default function Layout() {
   return (
       <Stack screenOptions={{  }}>
         <Stack.Screen name="(tabs)" options={{
-            headerStyle: { backgroundColor: '#0e170c' },
+            headerStyle: { backgroundColor: '#0A130E' },
             headerTitle: props => <LogoTitle {...props} />,
         }} />
       </Stack>

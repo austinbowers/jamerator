@@ -1,7 +1,14 @@
 import React, {useMemo, useState} from 'react';
-import {View, Text, StyleSheet, ActivityIndicator, TouchableOpacity} from 'react-native';
+import {
+    View,
+    Text,
+    StyleSheet,
+    ActivityIndicator,
+    TouchableOpacity,
+    ActionSheetIOS,
+} from 'react-native';
 import { fetchChatCompletion} from "@/scripts/api";
-import { Picker } from "@react-native-picker/picker";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
 
 const ChordDisplay = () => {
 
@@ -56,10 +63,10 @@ const ChordDisplay = () => {
         },
     ]);
 
-    const [selectedGenre, setSelectedGenre] = useState("");
-    const [selectedKey, setSelectedKey] = useState("Random");
+    const [selectedKey, setSelectedKey] = useState('Random');
+    const [selectedGenre, setSelectedGenre] = useState('Random');
 
-    const prompt = `using references from music theory and common finger positions for guitar chords, return me an array (without the \`\`\`json header) of a random ${selectedGenre ?? ''} guitar chord progression ${selectedKey !== 'Random' ? 'in the key of ' + selectedKey : 'in a random key'} and only return the array starting from '[' using this strict data structure format for the chords and double check each chord finger positioning and barred fret for accuracy. a fret of -1 represents a string that should not be played. a finger of 1 indicates pointer finger, a finger of 2 indicates middle finger, a finger of 3 indicates ring finger, a finger of 4 indicates pinky. Double check and make sure finger number is accurate of what a human can actually play. 'bars' is which number bar in the progression this chord should be played during.:
+    const prompt = `using references from music theory and common finger positions for guitar chords, return me an array (without the \`\`\`json header) of a random ${selectedGenre === 'Random' ? '' : selectedGenre} guitar chord progression ${selectedKey !== 'Random' ? 'in the key of ' + selectedKey : 'in a random key'} and only return the array starting from '[' using this strict data structure format for the chords and double check each chord finger positioning and barred fret for accuracy. a fret of -1 represents a string that should not be played. a finger of 1 indicates pointer finger, a finger of 2 indicates middle finger, a finger of 3 indicates ring finger, a finger of 4 indicates pinky. Double check and make sure finger number is accurate of what a human can actually play. 'bars' is which number bar in the progression this chord should be played during. Double check for missing finger positions.:
 ` +
         "    {\n" +
         "        \"name\": \"C#m\",\n" +
@@ -114,62 +121,82 @@ const ChordDisplay = () => {
         });
     }, [progression]);
 
+    const keys = [
+        "Random", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B",
+        "Cm", "C#m", "Dm", "D#m", "Em", "Fm", "F#m", "Gm", "G#m", "Am", "A#m", "Bm"
+    ];
+
+    const genres = [
+        "Random", "Rock", "Blues", "Jazz", "Pop", "Folk", "Country"
+    ]
+
+    const showKeyPicker = () => {
+        ActionSheetIOS.showActionSheetWithOptions(
+            {
+                options: [...keys, "Cancel"],
+                cancelButtonIndex: keys.length,
+            },
+            (buttonIndex) => {
+                if (buttonIndex !== keys.length) {
+                    setSelectedKey(keys[buttonIndex]);
+                }
+            }
+        );
+    };
+
+    const showGenrePicker = () => {
+        ActionSheetIOS.showActionSheetWithOptions(
+            {
+                options: [...genres, "Cancel"],
+                cancelButtonIndex: genres.length,
+            },
+            (buttonIndex) => {
+                if (buttonIndex !== genres.length) {
+                    setSelectedGenre(genres[buttonIndex]);
+                }
+            }
+        );
+    };
 
     return (
         <View style={styles.container}>
-            <Picker
-                selectedValue={selectedKey}
-                onValueChange={(itemValue) => setSelectedKey(itemValue)}
-                style={{ height: 50, width: 300, marginBottom: 180 }}
-            >
-                <Picker.Item label="Random Key" value="Random" />
-
-                {/* Major Keys */}
-                <Picker.Item label="C Major" value="C" />
-                <Picker.Item label="C# Major / Db Major" value="C#" />
-                <Picker.Item label="D Major" value="D" />
-                <Picker.Item label="D# Major / Eb Major" value="D#" />
-                <Picker.Item label="E Major" value="E" />
-                <Picker.Item label="F Major" value="F" />
-                <Picker.Item label="F# Major / Gb Major" value="F#" />
-                <Picker.Item label="G Major" value="G" />
-                <Picker.Item label="G# Major / Ab Major" value="G#" />
-                <Picker.Item label="A Major" value="A" />
-                <Picker.Item label="A# Major / Bb Major" value="A#" />
-                <Picker.Item label="B Major" value="B" />
-
-                {/* Minor Keys */}
-                <Picker.Item label="C Minor" value="Cm" />
-                <Picker.Item label="C# Minor / Db Minor" value="C#m" />
-                <Picker.Item label="D Minor" value="Dm" />
-                <Picker.Item label="D# Minor / Eb Minor" value="D#m" />
-                <Picker.Item label="E Minor" value="Em" />
-                <Picker.Item label="F Minor" value="Fm" />
-                <Picker.Item label="F# Minor / Gb Minor" value="F#m" />
-                <Picker.Item label="G Minor" value="Gm" />
-                <Picker.Item label="G# Minor / Ab Minor" value="G#m" />
-                <Picker.Item label="A Minor" value="Am" />
-                <Picker.Item label="A# Minor / Bb Minor" value="A#m" />
-                <Picker.Item label="B Minor" value="Bm" />
-            </Picker>
-            <Picker
-                selectedValue={selectedGenre}
-                onValueChange={(itemValue) => setSelectedGenre(itemValue)}
-                style={{ height: 50, width: 300, marginBottom: 180 }}
-            >
-                <Picker.Item label="Rock" value="rock" />
-                <Picker.Item label="Blues" value="blues" />
-                <Picker.Item label="Jazz" value="jazz" />
-                <Picker.Item label="Pop" value="pop" />
-            </Picker>
+            {/* Genre and Key Selectors */}
+            <View style={{marginTop: 24}}>
+                <View style={ styles.gridContainer }>
+                    <View style={styles.gridItemTwo}>
+                        <TouchableOpacity onPress={showKeyPicker} style={styles.buttonOutlineStyle}>
+                            <Text style={styles.buttonOutlineTextStyle}>Key</Text>
+                        </TouchableOpacity>
+                    </View>
+                    <View style={styles.gridItemTwo}>
+                        <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#85B59C', width: '100%', textAlign: 'center', padding: 2 }}>{selectedKey}</Text>
+                    </View>
+                    <View style={styles.gridItemTwo}>
+                        <TouchableOpacity onPress={showGenrePicker} style={styles.buttonOutlineStyle}>
+                            <Text style={styles.buttonOutlineTextStyle}>Genre</Text>
+                        </TouchableOpacity>
+                    </View>
+                    <View style={styles.gridItemTwo}>
+                        <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#85B59C', width: '100%', textAlign: 'center', padding: 2 }}>{selectedGenre}</Text>
+                    </View>
+                </View>
+            </View>
+            {/* Generate and Loading Indicator*/}
             {chordsLoading ? (
                 <View style={{marginTop: 20}}>
                     <ActivityIndicator size="large" color="#85B59C" />
                 </View>
             ) : (
-                <TouchableOpacity onPress={getCompletion} style={styles.buttonStyle}>
-                    <Text style={{fontWeight: 'bold',fontSize: 16,  textAlign: 'center'}}>Generate Jam</Text>
-                </TouchableOpacity>
+                <View style={{marginTop: 16}}>
+                    <TouchableOpacity onPress={getCompletion} style={styles.gridContainer}>
+                        <View style={styles.gridItemFull}>
+                            <View style={styles.buttonStyle}>
+                                <FontAwesome size={18} name="music" />
+                                <Text style={styles.buttonTextStyle}>Generate Jam</Text>
+                            </View>
+                        </View>
+                    </TouchableOpacity>
+                </View>
             )}
             <View>
                 <View style={{ marginTop: 64, marginBottom: 40, flexDirection: 'row', justifyContent: 'space-between'}}>
@@ -245,11 +272,44 @@ const styles = StyleSheet.create({
     buttonStyle: {
         backgroundColor: '#85B59C',
         borderRadius: 6,
-        marginTop: 20,
-        width: 280,
         alignItems: 'center',
         alignContent: 'center',
-        padding: 16,
+        paddingLeft: 16,
+        paddingRight: 16,
+        paddingTop: 12,
+        paddingBottom: 12,
+        width: '100%',
+        flexDirection: 'row',
+        justifyContent: 'center',
+        gap: 6
+    },
+    buttonOutlineStyle: {
+        borderColor: '#85B59C',
+        borderWidth: 1,
+        color: '#85B59C',
+        borderRadius: 6,
+        alignItems: 'center',
+        alignContent: 'center',
+        paddingLeft: 16,
+        paddingRight: 16,
+        paddingTop: 12,
+        paddingBottom: 12,
+        width: '100%',
+        flexDirection: 'row',
+        justifyContent: 'center',
+        gap: 6
+    },
+    buttonOutlineTextStyle: {
+        fontWeight: 'bold',
+        fontSize: 16,
+        textAlign: 'center',
+        color: '#85B59C',
+    },
+    buttonTextStyle: {
+        fontWeight: 'bold',
+        fontSize: 16,
+        textAlign: 'center',
+        color: 'black'
     },
     container: {
         flex: 1,
@@ -356,6 +416,24 @@ const styles = StyleSheet.create({
         fontSize: 16,
         textAlign: 'center',
         bottom: -50,
+    },
+    gridContainer: {
+        flexDirection: "row",
+        flexWrap: "wrap",
+        justifyContent: "space-between",
+        alignItems: "center",
+        alignContent: "center",
+        gap: 12,
+    },
+    gridItemTwo: {
+        width: '48.3%',
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    gridItemFull: {
+        width: '100%',
+        justifyContent: "center",
+        alignItems: "center",
     }
 });
 

@@ -1,7 +1,6 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Tabs } from 'expo-router';
 import React from "react";
-import {Image} from "react-native";
 
 export default function TabLayout() {
     return (
@@ -10,7 +9,7 @@ export default function TabLayout() {
             tabBarActiveTintColor: '#85B59C',
             tabBarInactiveTintColor: '#2f483b',
                 tabBarStyle: {
-                    backgroundColor: '#0e170c', // Change this to your desired color
+                    backgroundColor: '#0A130E', // Change this to your desired color
                     borderTopColor: '#222f20',
                 },
         }}>
@@ -26,7 +25,7 @@ export default function TabLayout() {
                 name="chords"
                 options={{
                     headerShown: false,
-                    title: 'Chords',
+                    title: 'Database',
                     tabBarIcon: ({ color }) => <FontAwesome size={28} name="music" color={color} />,
                 }}
             />

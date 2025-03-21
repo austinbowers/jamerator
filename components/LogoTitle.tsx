@@ -1,7 +1,7 @@
 import { Image } from "react-native";
 import React from "react";
 
-const LogoTitle = () => {
+export default function LogoTitle() {
     return (
         <Image
             source={require('../assets/images/Jamerator.png')}
@@ -9,4 +9,3 @@ const LogoTitle = () => {
         />
     );
 }
-export default LogoTitle;
