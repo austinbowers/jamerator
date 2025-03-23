@@ -6,6 +6,12 @@ export default {
         extra: {
             OPENAI_API_KEY: process.env.OPENAI_API_KEY,
         },
+        "plugins": [
+            [
+                "expo-sqlite",
+                "expo-router",
+            ]
+        ],
         "android": {
             "package": "com.austinbowers.jamerator"
         },

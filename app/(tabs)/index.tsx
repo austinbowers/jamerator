@@ -4,8 +4,8 @@ import ChordDisplay from "@/components/ChordDisplay";
 export default function Index() {
 
     return (
-        <View style={{backgroundColor: '#0A130E'}}>
-            <ScrollView contentContainerStyle={{ flexGrow: 1, alignItems: 'center', backgroundColor: '#0A130E' }}>
+        <View style={{backgroundColor: '#0A130E', height: '100%'}}>
+            <ScrollView contentContainerStyle={{ backgroundColor: '#0A130E' }}>
                 <ChordDisplay/>
             </ScrollView>
         </View>

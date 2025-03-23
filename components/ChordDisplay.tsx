@@ -9,85 +9,66 @@ import {
 } from 'react-native';
 import { fetchChatCompletion} from "@/scripts/api";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
+import {useSQLiteContext} from "expo-sqlite";
 
 const ChordDisplay = () => {
 
-    const [progression, setProgression] = useState([
-        {
-            name: 'C#m',
-            barredFret: 4,
-            positions: [
-                { string: 'E', fret: -1, finger: 0 },
-                { string: 'A', fret: 4, finger: 1 },
-                { string: 'D', fret: 6, finger: 3 },
-                { string: 'G', fret: 6, finger: 4 },
-                { string: 'B', fret: 5, finger: 2 },
-                { string: 'e', fret: 4, finger: 1 },
-            ],
-        },
-        {
-            name: 'A',
-            barredFret: null,
-            positions: [
-                { string: 'E', fret: -1, finger: 0 },
-                { string: 'A', fret: 0, finger: 0 },
-                { string: 'D', fret: 2, finger: 1 },
-                { string: 'G', fret: 2, finger: 2 },
-                { string: 'B', fret: 2, finger: 3 },
-                { string: 'e', fret: 0, finger: 0 },
-            ],
-        },
-        {
-            name: 'Bm',
-            barredFret: 2,
-            positions: [
-                { string: 'E', fret: 2, finger: 0 },
-                { string: 'A', fret: 2, finger: 1 },
-                { string: 'D', fret: 4, finger: 3 },
-                { string: 'G', fret: 4, finger: 4 },
-                { string: 'B', fret: 3, finger: 2 },
-                { string: 'e', fret: 2, finger: 1 },
-            ],
-        },
-        {
-            name: 'G',
-            barredFret: null,
-            positions: [
-                { string: 'E', fret: 3, finger: 2 },
-                { string: 'A', fret: 2, finger: 1 },
-                { string: 'D', fret: 0, finger: 0 },
-                { string: 'G', fret: 0, finger: 0 },
-                { string: 'B', fret: 0, finger: 0 },
-                { string: 'e', fret: 3, finger: 3 },
-            ],
-        },
-    ]);
 
+    const database = useSQLiteContext();
+    const [progression, setProgression] = useState([]);
     const [selectedKey, setSelectedKey] = useState('Random');
     const [selectedGenre, setSelectedGenre] = useState('Random');
 
-    const prompt = `using references from music theory and common finger positions for guitar chords, return me an array (without the \`\`\`json header) of a random ${selectedGenre === 'Random' ? '' : selectedGenre} guitar chord progression ${selectedKey !== 'Random' ? 'in the key of ' + selectedKey : 'in a random key'} and only return the array starting from '[' using this strict data structure format for the chords and double check each chord finger positioning and barred fret for accuracy. a fret of -1 represents a string that should not be played. a finger of 1 indicates pointer finger, a finger of 2 indicates middle finger, a finger of 3 indicates ring finger, a finger of 4 indicates pinky. Double check and make sure finger number is accurate of what a human can actually play. 'bars' is which number bar in the progression this chord should be played during. Double check for missing finger positions.:
-` +
-        "    {\n" +
-        "        \"name\": \"C#m\",\n" +
-        "        \"barredFret\": 4,\n" +
-        "        \"positions\": [\n" +
-        "            { \"string\": \"E\", \"fret\": -1, \"finger\": 0 },\n" +
-        "            { \"string\": \"A\", \"fret\": 4, \"finger\": 1 },\n" +
-        "            { \"string\": \"D\", \"fret\": 6, \"finger\": 3 },\n" +
-        "            { \"string\": \"G\", \"fret\": 6, \"finger\": 4 },\n" +
-        "            { \"string\": \"B\", \"fret\": 5, \"finger\": 2 },\n" +
-        "            { \"string\": \"e\", \"fret\": 4, \"finger\": 1 }\n" +
-        "        ],\n" +
-        "        \"bars\": [1],\n" +
-        "    },";
+    const prompt = `Using references from music theory and common finger positions for guitar chords, return me an array (without the \`\`\`json header) of a random ${
+        selectedGenre === 'Random' ? '' : selectedGenre
+    } guitar chord progression ${
+        selectedKey !== 'Random' ? 'in the key of ' + selectedKey : 'in a random key'
+    } Double-check each chord finger positioning and barred fret for accuracy. A fret of -1 represents a string that should not be played. A finger of 1 indicates pointer finger, a finger of 2 indicates middle finger, a finger of 3 indicates ring finger, and a finger of 4 indicates pinky. Double-check and make sure the finger number is accurate for what a human can actually play. 'bars' indicates which number bar in the progression this chord should be played during. Double-check for missing finger positions.
+
+The response must follow this strict format:
+
+[{
+    "name": "VI IV",
+    "genre": "Rock",
+    "difficulty": "Easy",
+    "key": "E",
+    "chords": [
+        {
+            "name": "C#m",
+            "barredFret": 4,
+            "positions": [
+                { "string": "E", "fret": -1, "finger": 0 },
+                { "string": "A", "fret": 4, "finger": 1 },
+                { "string": "D", "fret": 6, "finger": 3 },
+                { "string": "G", "fret": 6, "finger": 4 },
+                { "string": "B", "fret": 5, "finger": 2 },
+                { "string": "e", "fret": 4, "finger": 1 }
+            ],
+        },
+        {
+            "name": "A",
+            "barredFret": null,
+            "positions": [
+                { "string": "E", "fret": -1, "finger": 0 },
+                { "string": "A", "fret": 0, "finger": 0 },
+                { "string": "D", "fret": 2, "finger": 1 },
+                { "string": "G", "fret": 2, "finger": 2 },
+                { "string": "B", "fret": 2, "finger": 3 },
+                { "string": "e", "fret": 0, "finger": 0 }
+            ],
+        }
+    ]
+}]`;
 
     const [chordsLoading, setChordsLoading] = useState(false)
     const getCompletion = async () => {
         setChordsLoading(true)
         try {
             const response = await fetchChatCompletion(prompt);
-            setProgression(JSON.parse(response));
+            if(response.length > 0)
+                console.log(response);
+                setProgression(JSON.parse(response));
+                await handleSave(JSON.parse(response))
         }
         catch (error) {
             console.error("API Error:");
@@ -102,7 +83,8 @@ const ChordDisplay = () => {
 
     // Compute the visual positions of the chords
     const visualChords = useMemo(() => {
-        return progression.map((chord) => {
+        if(progression.length > 0)
+        return progression[0].chords.map((chord) => {
             const minFret = Math.min(
                 ...chord.positions.filter((p) => p.fret > 0).map((p) => p.fret)
             );
@@ -158,6 +140,18 @@ const ChordDisplay = () => {
         );
     };
 
+    const handleSave = async (res) => {
+        console.log(res)
+        if(res.length > 0)
+            database.runAsync("INSERT INTO ChordProgressions (name, genre, difficulty, key, chords) VALUES (?,?,?,?,?);", [
+                res[0].name,
+                res[0].genre,
+                res[0].difficulty,
+                res[0].key,
+                JSON.stringify(res[0].chords),
+            ]);
+    }
+
     return (
         <View style={styles.container}>
             {/* Genre and Key Selectors */}
@@ -165,7 +159,7 @@ const ChordDisplay = () => {
                 <View style={ styles.gridContainer }>
                     <View style={styles.gridItemTwo}>
                         <TouchableOpacity onPress={showKeyPicker} style={styles.buttonOutlineStyle}>
-                            <Text style={styles.buttonOutlineTextStyle}>Key</Text>
+                            <Text style={styles.buttonOutlineTextStyle}>Select Key</Text>
                         </TouchableOpacity>
                     </View>
                     <View style={styles.gridItemTwo}>
@@ -173,7 +167,7 @@ const ChordDisplay = () => {
                     </View>
                     <View style={styles.gridItemTwo}>
                         <TouchableOpacity onPress={showGenrePicker} style={styles.buttonOutlineStyle}>
-                            <Text style={styles.buttonOutlineTextStyle}>Genre</Text>
+                            <Text style={styles.buttonOutlineTextStyle}>Select Genre</Text>
                         </TouchableOpacity>
                     </View>
                     <View style={styles.gridItemTwo}>
@@ -183,11 +177,11 @@ const ChordDisplay = () => {
             </View>
             {/* Generate and Loading Indicator*/}
             {chordsLoading ? (
-                <View style={{marginTop: 20}}>
+                <View style={{marginTop: 32}}>
                     <ActivityIndicator size="large" color="#85B59C" />
                 </View>
             ) : (
-                <View style={{marginTop: 16}}>
+                <View style={{marginTop: 32}}>
                     <TouchableOpacity onPress={getCompletion} style={styles.gridContainer}>
                         <View style={styles.gridItemFull}>
                             <View style={styles.buttonStyle}>
@@ -198,6 +192,7 @@ const ChordDisplay = () => {
                     </TouchableOpacity>
                 </View>
             )}
+            {visualChords &&
             <View>
                 <View style={{ marginTop: 64, marginBottom: 40, flexDirection: 'row', justifyContent: 'space-between'}}>
                     {visualChords.map((chord) => (
@@ -262,7 +257,7 @@ const ChordDisplay = () => {
                         ))}
                     </View>
                 ))}
-            </View>
+            </View>}
         </View>
 
     );
@@ -316,7 +311,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         padding: 16,
-        // transform: 'scale(1)',
     },
     chordContainer: {
         marginVertical: 32,
@@ -423,7 +417,8 @@ const styles = StyleSheet.create({
         justifyContent: "space-between",
         alignItems: "center",
         alignContent: "center",
-        gap: 12,
+        columnGap: 12,
+        rowGap: 24,
     },
     gridItemTwo: {
         width: '48.3%',
