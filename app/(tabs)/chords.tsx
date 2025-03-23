@@ -1,5 +1,5 @@
-import {View, TextInput, Text, TouchableOpacity, FlatList, SafeAreaView, ScrollView} from 'react-native';
-import {useCallback, useEffect, useState} from "react";
+import {View, Text, TouchableOpacity, FlatList, SafeAreaView } from 'react-native';
+import {useCallback, useState} from "react";
 import {useSQLiteContext} from "expo-sqlite";
 import {useFocusEffect} from "expo-router";
 
@@ -7,11 +7,6 @@ export default function Chords() {
 
     const database = useSQLiteContext();
     const [chordProgressions, setChordProgressions] = useState<any>([]);
-    const [name, setName] = useState<string>('');
-    const [genre, setGenre] = useState<string>('');
-    const [difficulty, setDifficulty] = useState<string>('');
-    const [key, setKey] = useState<string>('');
-    const [chords, setChords] = useState<string>('');
 
     const loadData = async () => {
         const result = await database.getAllAsync<{
@@ -33,17 +28,6 @@ export default function Chords() {
         catch (error) {
             console.log(error);
         }
-    }
-
-    const handleSave = async () => {
-        database.runAsync("INSERT INTO ChordProgressions (name, genre, difficulty, key, chords) VALUES (?,?,?,?,?);", [
-            name,
-            genre,
-            difficulty,
-            key,
-            chords,
-        ]);
-        loadData();
     }
 
     useFocusEffect(
