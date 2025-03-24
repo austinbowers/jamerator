@@ -9,10 +9,23 @@ export default {
                 "projectId": "41ff8154-9395-4c0c-b363-66f8193d4b32"
             },
         },
+        icon: "./assets/images/Jamerator_Icon.png",
         "plugins": [
             [
                 "expo-sqlite",
                 "expo-router",
+                [
+                    "expo-splash-screen",
+                    {
+                        "backgroundColor": "#ffffff",
+                        "image": "./assets/icon/splash-icon-light.png",
+                        "dark": {
+                            "image": "./assets/icon/splash-icon-dark.png",
+                            "backgroundColor": "#000000"
+                        },
+                        "imageWidth": 200
+                    }
+                ],
             ]
         ],
         "android": {
@@ -23,10 +36,10 @@ export default {
             "infoPlist": {
                 "ITSAppUsesNonExemptEncryption": false
             },
-            icon: {
-                dark: "./assets/icons/ios-dark.png",
-                light: "./assets/icons/ios-light.png",
-                tinted: "./assets/icons/ios-tinted.png",
+            "icon": {
+                "dark": "./assets/icons/ios-dark.png",
+                "light": "./assets/icons/ios-light.png",
+                "tinted": "./assets/icons/ios-tinted.png",
             },
         },
         "newArchEnabled": true,

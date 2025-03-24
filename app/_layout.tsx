@@ -2,6 +2,7 @@ import { Stack } from 'expo-router/stack';
 import React from "react";
 import LogoTitle from "@/components/LogoTitle";
 import { SQLiteDatabase, SQLiteProvider } from 'expo-sqlite';
+import {StatusBar} from "expo-status-bar";
 
 
 
@@ -23,13 +24,17 @@ export default function Layout() {
     }
 
   return (
-      <SQLiteProvider databaseName="jamerator.db" onInit={createDbIfNeeded}>
-          <Stack screenOptions={{  }}>
-            <Stack.Screen name="(tabs)" options={{
-                headerStyle: { backgroundColor: '#0A130E' },
-                headerTitle: props => <LogoTitle {...props} />,
-            }} />
-          </Stack>
-      </SQLiteProvider>
+      <>
+          <SQLiteProvider databaseName="jamerator.db" onInit={createDbIfNeeded}>
+              <Stack screenOptions={{  }}>
+                  <Stack.Screen name="(tabs)" options={{
+                      headerStyle: { backgroundColor: '#0A130E' },
+                      headerTitle: props => <LogoTitle {...props} />,
+                  }} />
+              </Stack>
+          </SQLiteProvider>
+          <StatusBar style="light" />
+      </>
+
   );
 }
