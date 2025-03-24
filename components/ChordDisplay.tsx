@@ -20,7 +20,7 @@ const ChordDisplay = () => {
     const [selectedGenre, setSelectedGenre] = useState('Random');
     const [selectedDifficulty, setSelectedDifficulty] = useState('Beginner');
 
-    const prompt = `Using references from music theory and common finger positions for 6 string guitar chords return me an array (without the \`\`\`json header) of a random ${
+    const prompt = `Using references from music theory and common finger positions for 6 string guitar chords return me an array of a random ${
         selectedDifficulty
     } ${
         selectedGenre === 'Random' ? '' : selectedGenre
@@ -28,8 +28,7 @@ const ChordDisplay = () => {
         selectedKey !== 'Random' ? 'in the key of ' + selectedKey : 'in a random key'
     } Double-check each chord finger positioning and barred fret for accuracy. A fret of -1 represents a string that should not be played. A finger of 1 indicates pointer finger, a finger of 2 indicates middle finger, a finger of 3 indicates ring finger, and a finger of 4 indicates pinky. Double-check and make sure the finger number is accurate for what a human can actually play. 'bars' indicates which number bar in the progression this chord should be played during. Double-check for missing finger positions.
 
-The response must follow this strict format:
-
+The response must Output only code, Do not wrap the json codes in JSON markers, and follow this strict format:
 [{
     "name": "VI IV",
     "genre": "Rock",
@@ -49,19 +48,7 @@ The response must follow this strict format:
                 { "string": "e", "fret": 4, "finger": 1 }
             ],
         },
-        {
-            "id": "1",
-            "name": "A",
-            "barredFret": null,
-            "positions": [
-                { "string": "E", "fret": -1, "finger": 0 },
-                { "string": "A", "fret": 0, "finger": 0 },
-                { "string": "D", "fret": 2, "finger": 1 },
-                { "string": "G", "fret": 2, "finger": 2 },
-                { "string": "B", "fret": 2, "finger": 3 },
-                { "string": "e", "fret": 0, "finger": 0 }
-            ],
-        }
+        ...
     ]
 }]`;
 
