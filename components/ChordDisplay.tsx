@@ -18,8 +18,11 @@ const ChordDisplay = () => {
     const [progression, setProgression] = useState([]);
     const [selectedKey, setSelectedKey] = useState('Random');
     const [selectedGenre, setSelectedGenre] = useState('Random');
+    const [selectedDifficulty, setSelectedDifficulty] = useState('Beginner');
 
-    const prompt = `Using references from music theory and common finger positions for guitar chords, return me an array (without the \`\`\`json header) of a random ${
+    const prompt = `Using references from music theory and common finger positions for 6 string guitar chords return me an array (without the \`\`\`json header) of a random ${
+        selectedDifficulty
+    } ${
         selectedGenre === 'Random' ? '' : selectedGenre
     } guitar chord progression ${
         selectedKey !== 'Random' ? 'in the key of ' + selectedKey : 'in a random key'
@@ -30,10 +33,11 @@ The response must follow this strict format:
 [{
     "name": "VI IV",
     "genre": "Rock",
-    "difficulty": "Easy",
+    "difficulty": "Beginner",
     "key": "E",
     "chords": [
         {
+            "id": "0",
             "name": "C#m",
             "barredFret": 4,
             "positions": [
@@ -46,6 +50,7 @@ The response must follow this strict format:
             ],
         },
         {
+            "id": "1",
             "name": "A",
             "barredFret": null,
             "positions": [
@@ -66,12 +71,11 @@ The response must follow this strict format:
         try {
             const response = await fetchChatCompletion(prompt);
             if(response.length > 0)
-                console.log(response);
                 setProgression(JSON.parse(response));
                 await handleSave(JSON.parse(response))
         }
         catch (error) {
-            console.error("API Error:");
+            console.error("API Error:" + error);
             throw error;
         }
         finally {
@@ -112,6 +116,11 @@ The response must follow this strict format:
         "Random", "Rock", "Blues", "Jazz", "Pop", "Folk", "Country"
     ]
 
+    const difficulties = [
+        "Beginner", "Intermediate", "Advanced"
+    ]
+
+
     const showKeyPicker = () => {
         ActionSheetIOS.showActionSheetWithOptions(
             {
@@ -140,8 +149,21 @@ The response must follow this strict format:
         );
     };
 
+    const showDifficultyPicker = () => {
+        ActionSheetIOS.showActionSheetWithOptions(
+            {
+                options: [...difficulties, "Cancel"],
+                cancelButtonIndex: difficulties.length,
+            },
+            (buttonIndex) => {
+                if (buttonIndex !== difficulties.length) {
+                    setSelectedDifficulty(difficulties[buttonIndex]);
+                }
+            }
+        );
+    };
+
     const handleSave = async (res) => {
-        console.log(res)
         if(res.length > 0)
             database.runAsync("INSERT INTO ChordProgressions (name, genre, difficulty, key, chords) VALUES (?,?,?,?,?);", [
                 res[0].name,
@@ -157,31 +179,33 @@ The response must follow this strict format:
             {/* Genre and Key Selectors */}
             <View style={{marginTop: 24}}>
                 <View style={ styles.gridContainer }>
-                    <View style={styles.gridItemTwo}>
+                    <View style={styles.gridItemFull}>
                         <TouchableOpacity onPress={showKeyPicker} style={styles.buttonOutlineStyle}>
-                            <Text style={styles.buttonOutlineTextStyle}>Select Key</Text>
+                            <Text style={styles.buttonOutlineTextStyle}>Key: </Text>
+                            <Text style={{ fontWeight: 'bold', fontSize: 16, textAlign: 'center', color: 'white',}}>{selectedKey}</Text>
                         </TouchableOpacity>
                     </View>
-                    <View style={styles.gridItemTwo}>
-                        <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#85B59C', width: '100%', textAlign: 'center', padding: 2 }}>{selectedKey}</Text>
-                    </View>
-                    <View style={styles.gridItemTwo}>
+                    <View style={styles.gridItemFull}>
                         <TouchableOpacity onPress={showGenrePicker} style={styles.buttonOutlineStyle}>
-                            <Text style={styles.buttonOutlineTextStyle}>Select Genre</Text>
+                            <Text style={styles.buttonOutlineTextStyle}>Genre: </Text>
+                            <Text style={{ fontWeight: 'bold', fontSize: 16, textAlign: 'center', color: 'white',}}>{selectedGenre}</Text>
                         </TouchableOpacity>
                     </View>
-                    <View style={styles.gridItemTwo}>
-                        <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#85B59C', width: '100%', textAlign: 'center', padding: 2 }}>{selectedGenre}</Text>
+                    <View style={styles.gridItemFull}>
+                        <TouchableOpacity onPress={showDifficultyPicker} style={styles.buttonOutlineStyle}>
+                            <Text style={styles.buttonOutlineTextStyle}>Difficulty: </Text>
+                            <Text style={{ fontWeight: 'bold', fontSize: 16, textAlign: 'center', color: 'white',}}>{selectedDifficulty}</Text>
+                        </TouchableOpacity>
                     </View>
                 </View>
             </View>
             {/* Generate and Loading Indicator*/}
             {chordsLoading ? (
-                <View style={{marginTop: 32}}>
+                <View style={{marginTop: 24}}>
                     <ActivityIndicator size="large" color="#85B59C" />
                 </View>
             ) : (
-                <View style={{marginTop: 32}}>
+                <View style={{marginTop: 24}}>
                     <TouchableOpacity onPress={getCompletion} style={styles.gridContainer}>
                         <View style={styles.gridItemFull}>
                             <View style={styles.buttonStyle}>
@@ -196,13 +220,13 @@ The response must follow this strict format:
             <View>
                 <View style={{ marginTop: 64, marginBottom: 40, flexDirection: 'row', justifyContent: 'space-between'}}>
                     {visualChords.map((chord) => (
-                        <Text style={{color: 'white', flexGrow: 1, fontSize: 24, fontWeight: 'bold', marginRight: 24}} key={chord.name}>
+                        <Text style={{color: 'white', flexGrow: 1, fontSize: 24, fontWeight: 'bold', marginRight: 24}} key={chord.id}>
                             {chord.name}
                         </Text>
                     ))}
                 </View>
                 {visualChords.map((chord) => (
-                    <View key={chord.name} style={styles.chordContainer}>
+                    <View key={chord.id} style={styles.chordContainer}>
                         <Text style={styles.chordName}>{chord.name}</Text>
                         {/* Loop through each fret position */}
                         {[...Array(frets)].map((_, index) => (
@@ -234,7 +258,7 @@ The response must follow this strict format:
                                             {position && position.visualFret === index + 1 && position.visualFret !== chord.visualBarredFret && position.visualFret !== 0 ? (
                                                 <View style={styles.fingerTextWrapper}>
                                                     <Text style={styles.fingerText}>
-                                                        {position.finger}
+                                                        {/*{position.finger}*/}
                                                     </Text>
                                                 </View>
                                             ) : position && position.fret === -1 && index === 0 ? (

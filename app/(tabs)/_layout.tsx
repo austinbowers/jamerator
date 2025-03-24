@@ -17,15 +17,15 @@ export default function TabLayout() {
                 name="index"
                 options={{
                     headerShown: false,
-                    title: 'Home',
-                    tabBarIcon: ({ color }) => <FontAwesome size={28} name="home" color={color} />,
+                    title: 'Generator',
+                    tabBarIcon: ({ color }) => <FontAwesome size={28} name="flask" color={color} />,
                 }}
             />
             <Tabs.Screen
                 name="chords"
                 options={{
                     headerShown: false,
-                    title: 'Database',
+                    title: 'Library',
                     tabBarIcon: ({ color }) => <FontAwesome size={28} name="music" color={color} />,
                 }}
             />
