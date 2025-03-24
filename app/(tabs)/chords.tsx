@@ -2,6 +2,7 @@ import {View, Text, TouchableOpacity, FlatList, SafeAreaView, StyleSheet} from '
 import React, {useCallback, useState} from "react";
 import {useSQLiteContext} from "expo-sqlite";
 import {useFocusEffect, Link} from "expo-router";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
 
 
 export default function Chords() {
@@ -52,21 +53,21 @@ export default function Chords() {
 
     return (
         <View style={{backgroundColor: '#0A130E', flex: 1}}>
-            <Text style={{color: 'white', fontWeight: 'bold', fontSize: 20, paddingHorizontal: 16, paddingVertical: 24}}>My Chord Progressions</Text>
+            <Text style={{color: 'white', fontWeight: 'bold', fontSize: 20, paddingHorizontal: 16, paddingTop: 24, paddingBottom: 16}}>My Chord Progressions</Text>
             <SafeAreaView style={{ }}>
                 <View>
                     {chordProgressions &&
                         <FlatList keyExtractor={(item) => item.id.toString()} style={{marginBottom: 70 }} data={chordProgressions} renderItem={({ item }) => {
                             return (
-                                <Link style={{flexDirection: 'column', gap: 8, backgroundColor: '#0F1914',  margin: 10, borderRadius: 6,  padding: 16, }}
+                                <Link style={{flexDirection: 'column', gap: 8, backgroundColor: '#0F1914', margin: 10, borderRadius: 6,  padding: 16, }}
                                       href={{
                                           pathname: '/progressions/view',
                                           params: { id: item.id, name: item.name, difficulty: item.difficulty, key: item.key, genre: item.genre, chords: item.chords }
                                       }}>
-                                    <View style={{position: 'relative' }}>
+                                    <View style={{position: 'relative', width: '100%' }}>
                                         {/*<Text style={{color: 'green'}}>{item.id}</Text>*/}
-                                        <Text style={{color: 'white', fontWeight: 'bold', fontSize: 20, marginBottom: 10}}>{item.name}</Text>
-                                        <View style={{flexDirection: 'row', gap: 8 }}>
+                                        <Text style={{color: 'white', fontWeight: 'bold', fontSize: 16, marginBottom: 12}}>{item.name}</Text>
+                                        <View style={{flexDirection: 'row', gap: 8, marginBottom: 6 }}>
                                             <Text style={styles.badge}>{item.difficulty}</Text>
                                             <Text style={styles.badge}>{item.key}</Text>
                                             <Text style={styles.badge}>{item.genre}</Text>
@@ -76,8 +77,11 @@ export default function Chords() {
                                                 {ChordList(item.chords)}
                                             </View>
                                         </Text>
-                                        {/*<TouchableOpacity onPress={() => {handleDelete(item.id)}} style={{position: 'absolute', top: 16, right: 16}}>*/}
-                                        {/*    <FontAwesome size={20} name="trash" color={'gray'} />*/}
+                                        <View style={{ position: 'absolute', top: 32, right: 0}}>
+                                            <FontAwesome size={14} name="chevron-right" color={'#85B59C'} />
+                                        </View>
+                                        {/*<TouchableOpacity onPress={() => {handleDelete(item.id)}} style={{position: 'absolute', top: '40%', right: 0}}>*/}
+                                        {/*    <FontAwesome size={14} name="trash" color={'#85B59C'} />*/}
                                         {/*</TouchableOpacity>*/}
                                     </View>
                                 </Link>
@@ -92,7 +96,7 @@ export default function Chords() {
 
 const styles = StyleSheet.create({
     badge: {
-        backgroundColor: 'rgba(133,181,156,0.6)',
+        backgroundColor: '#85B59C',
         color: 'black',
         paddingHorizontal: 8,
         paddingVertical: 4,

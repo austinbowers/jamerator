@@ -6,8 +6,12 @@
   <component name="ChangeListManager">
     <list default="true" id="02763109-485d-47ff-9d66-d1ca548bcfb5" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app.config.js" beforeDir="false" afterPath="$PROJECT_DIR$/app.config.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(tabs)/chords.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(tabs)/chords.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/_layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/_layout.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/progressions/view.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/progressions/view.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/ChordDisplay.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/ChordDisplay.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

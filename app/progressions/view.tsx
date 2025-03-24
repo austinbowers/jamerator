@@ -9,7 +9,7 @@ export default function ProgressionView() {
     useEffect(() => {
         navigation.setOptions({
             headerShown: true,
-            title: name,
+            title: '',
             headerBackTitle: 'Back',
             headerStyle: {
                 backgroundColor: '#0A130E',
@@ -46,9 +46,10 @@ export default function ProgressionView() {
         }, [chordData]);
         return (
             <View>
-                <View style={{ marginTop: 64, marginBottom: 40, flexDirection: 'row', justifyContent: 'space-evenly' }}>
+                <Text style={{textAlign: 'center', color: '#85B59C', fontSize: 18, fontWeight: 'normal', marginTop: 32}}>{name}</Text>
+                <View style={{ marginTop: 40, marginBottom: 32, flexDirection: 'row', justifyContent: 'space-evenly' }}>
                     {visualChords.map((chord) => (
-                        <Text style={{ color: 'white', fontSize: 24, fontWeight: 'bold', marginRight: 24}} key={chord.id}>
+                        <Text style={{ color: 'white', fontSize: 24, fontWeight: 'bold'}} key={chord.id}>
                             {chord.name}
                         </Text>
                     ))}

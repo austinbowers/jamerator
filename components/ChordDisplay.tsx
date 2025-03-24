@@ -5,15 +5,15 @@ import {
     StyleSheet,
     ActivityIndicator,
     TouchableOpacity,
-    ActionSheetIOS,
 } from 'react-native';
 import { fetchChatCompletion} from "@/scripts/api";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import {useSQLiteContext} from "expo-sqlite";
+import { useActionSheet } from '@expo/react-native-action-sheet';
 
 const ChordDisplay = () => {
 
-
+    const { showActionSheetWithOptions } = useActionSheet();
     const database = useSQLiteContext();
     const [progression, setProgression] = useState([]);
     const [selectedKey, setSelectedKey] = useState('Random');
@@ -109,45 +109,36 @@ The response must Output only code, Do not wrap the json codes in JSON markers, 
 
 
     const showKeyPicker = () => {
-        ActionSheetIOS.showActionSheetWithOptions(
-            {
-                options: [...keys, "Cancel"],
-                cancelButtonIndex: keys.length,
-            },
-            (buttonIndex) => {
-                if (buttonIndex !== keys.length) {
-                    setSelectedKey(keys[buttonIndex]);
-                }
+        showActionSheetWithOptions({
+            options: [...keys, "Cancel"],
+            cancelButtonIndex: keys.length,
+        },(selectedIndex) => {
+            if (selectedIndex !== keys.length) {
+                setSelectedKey(keys[selectedIndex]);
             }
-        );
+        });
     };
 
     const showGenrePicker = () => {
-        ActionSheetIOS.showActionSheetWithOptions(
-            {
-                options: [...genres, "Cancel"],
-                cancelButtonIndex: genres.length,
-            },
-            (buttonIndex) => {
-                if (buttonIndex !== genres.length) {
-                    setSelectedGenre(genres[buttonIndex]);
-                }
+        showActionSheetWithOptions({
+            options: [...genres, "Cancel"],
+            cancelButtonIndex: genres.length,
+        },(selectedIndex) => {
+            if (selectedIndex !== genres.length) {
+                setSelectedGenre(genres[selectedIndex]);
             }
-        );
+        });
     };
 
     const showDifficultyPicker = () => {
-        ActionSheetIOS.showActionSheetWithOptions(
-            {
-                options: [...difficulties, "Cancel"],
-                cancelButtonIndex: difficulties.length,
-            },
-            (buttonIndex) => {
-                if (buttonIndex !== difficulties.length) {
-                    setSelectedDifficulty(difficulties[buttonIndex]);
-                }
+        showActionSheetWithOptions({
+            options: [...difficulties, "Cancel"],
+            cancelButtonIndex: difficulties.length,
+        },(selectedIndex) => {
+            if (selectedIndex !== difficulties.length) {
+                setSelectedDifficulty(difficulties[selectedIndex]);
             }
-        );
+        });
     };
 
     const handleSave = async (res) => {
