@@ -5,8 +5,19 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="02763109-485d-47ff-9d66-d1ca548bcfb5" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.eas/workflows/submit-ios.yml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/icons/adaptive-icon.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/icons/ios-dark.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/icons/ios-light.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/icons/ios-tinted.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/icons/splash-icon-dark.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/icons/splash-icon-light.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/images/Jamerator_Icon.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/eas.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/ChordDisplay.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/ChordDisplay.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app.config.js" beforeDir="false" afterPath="$PROJECT_DIR$/app.config.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -43,7 +54,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
     "git-widget-placeholder": "main",
-    "last_opened_file_path": "/Users/austinbowers/workspace/jammerator/assets/images",
+    "last_opened_file_path": "/Users/austinbowers/workspace/jammerator/assets/icons",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -60,9 +71,11 @@
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/assets/icons" />
       <recent name="$PROJECT_DIR$/assets/images" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/assets/images" />
       <recent name="$PROJECT_DIR$" />
       <recent name="$PROJECT_DIR$/components" />
       <recent name="$PROJECT_DIR$/app/(tabs)" />
