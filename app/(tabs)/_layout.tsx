@@ -29,6 +29,14 @@ export default function TabLayout() {
                     tabBarIcon: ({ color }) => <FontAwesome size={28} name="music" color={color} />,
                 }}
             />
+            <Tabs.Screen
+                name="testing"
+                options={{
+                    headerShown: false,
+                    title: 'Testing',
+                    tabBarIcon: ({ color }) => <FontAwesome size={28} name="question-circle" color={color} />,
+                }}
+            />
         </Tabs>
     );
 }

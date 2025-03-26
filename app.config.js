@@ -25,7 +25,7 @@ export default {
             [
                 "expo-splash-screen",
                 {
-                    backgroundColor: "#ffffff",
+                    backgroundColor: "#0A130E",
                     image: "./assets/icons/splash-icon-light.png",
                     dark: {
                         image: "./assets/icons/splash-icon-dark.png",
@@ -56,5 +56,6 @@ export default {
         runtimeVersion: {
             "policy": "appVersion"
         },
+        assetBundlePatterns: ["**/*"],
     },
 };

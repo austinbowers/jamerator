@@ -6,6 +6,7 @@ import {StatusBar} from "expo-status-bar";
 import { ActionSheetProvider } from '@expo/react-native-action-sheet';
 
 
+
 export default function Layout() {
 
     const createDbIfNeeded = async (db: SQLiteDatabase) => {
