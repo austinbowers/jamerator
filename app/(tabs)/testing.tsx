@@ -1,312 +1,200 @@
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import * as SQLite from 'expo-sqlite';
-import {SQLiteProvider} from "expo-sqlite";
+import {ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View} from "react-native";
+import ChordDiagram from "@/components/ChordDiagram";
 import React, {useEffect, useState} from "react";
+import {fetchChatCompletion} from "@/scripts/api";
+import {useSQLiteContext} from "expo-sqlite";
+import { useActionSheet } from '@expo/react-native-action-sheet';
+import FontAwesome from "@expo/vector-icons/FontAwesome";
 
-const processBaseFret = (frets) =>
-    Math.max(...frets) > 4 ? Math.min(...frets.filter((f) => f > 0)) : 1;
 
-const parseFretNotation = (notation) => {
-    return notation.split('').map(f => {
-        if (f === 'x') return -1;
-        if (!isNaN(f)) return Number(f);
-        return f.charCodeAt(0) - 87; // 'a' -> 10, 'b' -> 11, ..., 'z' -> 35
-    });
-};
-const getRandomNumber = () => Math.floor(Math.random() * 2447);
 export default function Testing() {
 
-    const [db, setDb] = useState<any>();
-    const chordsDatabase = async () => {
-        setDb(await SQLite.openDatabaseAsync('chords.db'))
-    }
+    const db = useSQLiteContext();
 
-    const [data, setData] = useState<any>();
-    const loadData = async () => {
-        if (db) {
-            const result = await db.getFirstAsync('SELECT * FROM chords ORDER BY RANDOM() LIMIT 1');
-            const processedFrets = parseFretNotation(result.position_frets);
-            const processedBaseFret = processBaseFret(processedFrets);
-            setData({ ...result, processedBaseFret, processedFrets });
+    const [chordsLoading, setChordsLoading] = useState(false)
+    const [progressionData, setProgressionData] = useState([])
+    const [chordData, setChordData] = useState([])
+    useEffect(() => {
+        const fetchChords = async () => {
+            if (progressionData.length > 0) {
+                setChordsLoading(true);
+                let chordsArray = [];
+
+                for (const chord of progressionData) {
+                    try {
+                        const result = await db.getFirstAsync(
+                            "SELECT * FROM chords WHERE key = $keyValue AND suffix = $suffixValue ORDER BY RANDOM() LIMIT 1",
+                            { $keyValue: chord.key, $suffixValue: chord.suffix }
+                        );
+
+                        if (result) {
+                            chordsArray.push(result);
+                        } else {
+                            console.error(`Chord not found in database: Key = ${chord.key}, Suffix = ${chord.suffix}`);
+                        }
+                    } catch (error) {
+                        console.error("Database Error:", error);
+                    }
+                }
+                setChordData(chordsArray);
+                setChordsLoading(false);
+            }
+        };
+
+        fetchChords();
+    }, [progressionData]); // Dependency on progressionData
+
+    const getCompletion = async () => {
+        setChordsLoading(true);
+        try {
+            const response = await fetchChatCompletion(
+                `Using music theory principles for a 6-string guitar, generate a random chord progression in the genre "${selectedGenre}" and key "${selectedKey}". 
+                The progression should follow typical chord sequences based on the selected genre while adhering to the following requirements:
+                
+                - Output the progression in this format: 
+                  [{key: 'A', suffix: 'add9'}, {key: 'D', suffix: '7'}, ...]
+                  
+                - The 'key' must be one of the following:
+                  (A, Ab, B, Bb, C, C#, D, Db, E, E#, Eb, F, F#, G)
+                
+                - The 'suffix' must be selected from the following list:
+                  (11, 13, 5, 6, 69, 7#9, 7, 7b5, 7b9, 7sus4, 9#11, 9, 9b5, /Ab, /B, /Bb, /Csharp, /C, /D, /E, /Eb, /Fsharp, /F, /G#, /G, add11, add9, alt, aug, aug7, aug9, dim, dim7, m11, m6, m69, m7, m7b5, m9, m9/C, m9/G, m/Ab, m/B, m/Bb, m/C#, m/C, m/D, m/E, m/Eb, m/F#, m/F, m/G#, m/G, madd9, maj11, maj13, maj7#5, maj7, maj7b5, maj7sus2, maj9, major, minor, mmaj11, mmaj7, mmaj7b5, mmaj9, sus, sus2, sus2sus4, sus4)
+            
+                - The chord progression should be musically coherent within the context of the selected genre and key.
+                - Only return the chord progression as JSON code without any additional explanations or comments.
+                
+                Do not wrap the JSON output in JSON markers.`
+            );
+            const formattedString = response.replace(/'/g, '"').replace(/(\w+):/g, '"$1":');
+            const parsedArray = JSON.parse(formattedString);
+            setProgressionData(parsedArray); // This triggers the useEffect to fetch chords
+        } catch (error) {
+            console.error("API Error:" + error);
+            throw error;
+        } finally {
+            setChordsLoading(false);
         }
     };
 
-    useEffect(() => {
-        chordsDatabase()
-    }, []);
+    const { showActionSheetWithOptions } = useActionSheet();
+    const [selectedKey, setSelectedKey] = useState('E');
+    const [selectedGenre, setSelectedGenre] = useState('Blues');
+
+    const keys = [
+        "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B",
+        "Cm", "C#m", "Dm", "D#m", "Em", "Fm", "F#m", "Gm", "G#m", "Am", "A#m", "Bm"
+    ];
+
+    const genres = [
+        "Rock", "Blues", "Jazz", "Pop", "Folk", "Country"
+    ]
+
+    const showKeyPicker = () => {
+        showActionSheetWithOptions({
+            options: [...keys, "Cancel"],
+            cancelButtonIndex: keys.length,
+        },(selectedIndex) => {
+            if (selectedIndex !== keys.length) {
+                setSelectedKey(keys[selectedIndex]);
+            }
+        });
+    };
+
+    const showGenrePicker = () => {
+        showActionSheetWithOptions({
+            options: [...genres, "Cancel"],
+            cancelButtonIndex: genres.length,
+        },(selectedIndex) => {
+            if (selectedIndex !== genres.length) {
+                setSelectedGenre(genres[selectedIndex]);
+            }
+        });
+    };
 
     return (
-        <SQLiteProvider databaseName="chords.db" assetSource={{ assetId: require('@/assets/chords.db') }}>
-            <View style={styles.container}>
-                <TouchableOpacity style={styles.buttonStyle} onPress={loadData}>
-                    <Text style={styles.buttonTextStyle}>Load</Text>
-                </TouchableOpacity>
-                {/*{data &&*/}
-                {/*    <View>*/}
-                {/*        <Text style={{color: 'white'}}>id: {data.id}</Text>*/}
-                {/*        <Text style={{color: 'white'}}>Chord key: {data.key} {data.suffix}</Text>*/}
-                {/*        <Text style={{ color: 'white' }}>Fret positions:*/}
-                {/*            {(data.processedFrets).map((fret, index) => (*/}
-                {/*                <Text key={index} style={{ marginRight: 5 }}>*/}
-                {/*                    {fret},*/}
-                {/*                </Text>*/}
-                {/*            ))}*/}
-                {/*        </Text>*/}
-                {/*        <Text style={{color: 'white'}}>Finger positions:*/}
-                {/*            {(data.position_fingers || '').split('').map((finger, index) => (*/}
-                {/*                <Text key={index} style={{ marginRight: 5 }}>*/}
-                {/*                    {finger},*/}
-                {/*                </Text>*/}
-                {/*            ))}</Text>*/}
-                {/*        <Text style={{color: 'white'}}>Bar: {data.barres}</Text>*/}
-                {/*        <Text style={{color: 'white'}}>Capo: {data.capo}</Text>*/}
-                {/*        <Text style={{color: 'white'}}>Base Fret: {data.processedBaseFret}</Text>*/}
-                {/*    </View>*/}
-                {/*}*/}
-                {data &&
-                    <View key={data.id} style={styles.chordContainer}>
-                        <Text style={styles.chordName}>{data.key} {data.suffix}</Text>
-                        {/* Loop through each fret position */}
-                        {[...Array(4)].map((_, fretIndex) => (
-                            <View
-                                key={fretIndex}
-                                style={[styles.fretRow, fretIndex === 0 && styles.firstFret]}
-                            >
-                                {fretIndex === 0 && data.processedBaseFret === 1 && (
-                                    <View style={{position: 'absolute', top:-5, width: '100%', height: 5, backgroundColor: '#85B59C'}}></View>
-                                )}
-                                {fretIndex === 0 && data.processedBaseFret !== 1 && (
-                                    <View style={{position: 'absolute', top:0, width: '100%', height: 2, backgroundColor: '#85B59C'}}></View>
-                                )}
-                                {data.processedBaseFret > 1 && fretIndex === 0 &&
-                                <Text style={{position: 'absolute', left: -45, top:9,  color: 'white', fontSize: 16, fontWeight: 'bold'}}>{data.processedBaseFret}fr</Text>
-                                }
-                                {/* Display barre chord if it exists at the current fret */}
-                                {data.barres && data.barres - data.processedBaseFret === fretIndex && (
-                                    <View style={{width: '100%', position: 'absolute', height: 22, backgroundColor: '#85B59C', opacity: .6,}}>
-                                    </View>
 
-                                )}
-                                {/* Loop through each string (E, A, D, G, B, e) */}
-                                {['E', 'A', 'D', 'G', 'B', 'e'].map((string, stringIndex) => {
-                                    // Get the fret position for the current string
-                                    const fret = data.processedFrets ? data.processedFrets[stringIndex] : null;
-
-                                    return (
-                                        <View key={string} style={styles.string}>
-                                            {/* Display finger position if it matches the current fret and does not equal 'x' */}
-                                            { fret - data.processedBaseFret === fretIndex && (fret !== data.barres) ? (
-                                                <View style={styles.fingerTextWrapper}>
-                                                    <Text style={styles.fingerText}>{data.position_fingers[stringIndex]}</Text>
-                                                </View>
-                                            ) : fret === -1 && fretIndex === 0 ? (
-                                                <View>
-                                                    <Text style={styles.unPlayedStringStyle}>
-                                                        X
-                                                    </Text>
-                                                </View>
-                                            ) : fret === 0 && fretIndex === 0 ? (
-                                                <View>
-                                                    <Text style={styles.openStringStyle}>
-                                                    </Text>
-                                                </View>
-                                            ) : null }
-                                            {/* Display barre chord if it exists at the current fret and string */}
-                                            {stringIndex === 0 ? (
-                                                <View>
-                                                    {data.barres && (data.barres - data.processedBaseFret === fretIndex) && (data.barres === fret) && (
-                                                        <View style={styles.fingerTextWrapper}>
-                                                            <View style={styles.barreChordStringLeft}>
-                                                                <Text style={styles.fingerText}>{data.position_fingers[stringIndex]}</Text>
-                                                            </View>
-                                                        </View>
-                                                    )}
-                                                </View>
-                                            ) : stringIndex === 5 ? (
-                                                <View>
-                                                    {data.barres && (data.barres - data.processedBaseFret === fretIndex) && (data.barres === fret) && (
-                                                        <View style={styles.fingerTextWrapper}>
-                                                            <View style={styles.barreChordStringRight}>
-                                                                <Text style={styles.fingerText}>{data.position_fingers[stringIndex]}</Text>
-                                                            </View>
-                                                        </View>
-                                                    )}
-                                                </View>
-                                            ) : (
-                                                <View>
-                                                    {data.barres && (data.barres - data.processedBaseFret === fretIndex) && (data.barres === fret) && (
-                                                        <View style={styles.fingerTextWrapper}>
-                                                            <View style={styles.barreChord}>
-                                                                <Text style={styles.fingerText}>{data.position_fingers[stringIndex]}</Text>
-                                                            </View>
-                                                        </View>
-                                                    )}
-                                                </View>
-                                            )}
-                                        </View>
-                                    );
-                                })}
-                            </View>
-                        ))}
+            <ScrollView style={{flex:1, backgroundColor:'black', padding: 16}}>
+                {/* Genre and Key Selectors */}
+                <View style={{marginTop: 24}}>
+                    <View style={ styles.gridContainer }>
+                        <View style={styles.gridItemFull}>
+                            <TouchableOpacity onPress={showKeyPicker} style={styles.buttonOutlineStyle}>
+                                <Text style={styles.buttonOutlineTextStyle}>Key: </Text>
+                                <Text style={{ fontWeight: 'bold', fontSize: 16, textAlign: 'center', color: 'white',}}>{selectedKey}</Text>
+                            </TouchableOpacity>
+                        </View>
+                        <View style={styles.gridItemFull}>
+                            <TouchableOpacity onPress={showGenrePicker} style={styles.buttonOutlineStyle}>
+                                <Text style={styles.buttonOutlineTextStyle}>Genre: </Text>
+                                <Text style={{ fontWeight: 'bold', fontSize: 16, textAlign: 'center', color: 'white',}}>{selectedGenre}</Text>
+                            </TouchableOpacity>
+                        </View>
                     </View>
-                }
-            </View>
-        </SQLiteProvider>
-
-
+                </View>
+                {/* Generate and Loading Indicator*/}
+                {chordsLoading ? (
+                    <View style={{marginTop: 24}}>
+                        <ActivityIndicator size="large" color="#85B59C" />
+                    </View>
+                ) : (
+                    <View style={{marginTop: 24}}>
+                        <TouchableOpacity onPress={getCompletion} style={styles.gridContainer}>
+                            <View style={styles.gridItemFull}>
+                                <View style={styles.buttonStyle}>
+                                    <FontAwesome size={18} name="music" />
+                                    <Text style={styles.buttonTextStyle}>Generate Jam</Text>
+                                </View>
+                            </View>
+                        </TouchableOpacity>
+                    </View>
+                )}
+                {chordData && chordData.map((data, index) => (
+                    <ChordDiagram key={index} chordData={data}></ChordDiagram>
+                ))}
+            </ScrollView>
     );
 }
-
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
+    buttonOutlineStyle: {
+        borderColor: '#85B59C',
+        borderWidth: 1,
+        color: '#85B59C',
+        borderRadius: 6,
+        alignItems: 'center',
+        alignContent: 'center',
+        paddingLeft: 16,
+        paddingRight: 16,
+        paddingTop: 12,
+        paddingBottom: 12,
+        width: '100%',
+        flexDirection: 'row',
         justifyContent: 'center',
-        alignItems: 'center',
-        padding: 16,
-        backgroundColor: '#0A130E',
+        gap: 6
     },
-    chordContainer: {
-        marginVertical: 32,
-        alignItems: 'center',
-    },
-    chordName: {
-        color: '#DFFFEE',
+    buttonOutlineTextStyle: {
         fontWeight: 'bold',
-        marginBottom: 24,
-        fontSize: 18,
-    },
-    fretRow: {
-        width: 160, // Adjust width to 80% of the screen width
-        height: 40,
-        borderBottomWidth: 1,
-        borderColor: 'rgba(133,181,156,0.5)',
-        flexDirection: 'row',
-        alignItems: 'center',
-        alignSelf: 'center',
-        alignContent: 'center',
-        justifyContent: 'space-between',
-        position: 'relative',
-    },
-    firstFret: {
-        borderTopColor: '#85B59C',
-    },
-    barreChord: {
-        zIndex: 100,
-        width: 34,
-        textAlign: 'center',
-        alignItems: 'center',
-        height: 22,
-        backgroundColor: '#85B59C',
-        borderRadius: 0,
-        fontWeight: 'bold',
-    },
-    barreChordStringLeft: {
-        zIndex: 100,
-        paddingLeft: 2,
-        paddingRight: 8,
-        textAlign: 'center',
-        alignItems: 'center',
-        height: 22,
-        backgroundColor: '#85B59C',
-        borderBottomLeftRadius: 8,
-        borderTopLeftRadius: 8,
-        fontWeight: 'bold',
-    },
-    barreChordStringRight: {
-        zIndex: 100,
-        paddingLeft: 8,
-        paddingRight: 2,
-        textAlign: 'center',
-        alignItems: 'center',
-        height: 22,
-        backgroundColor: '#85B59C',
-        borderBottomRightRadius: 8,
-        borderTopRightRadius: 8,
-        fontWeight: 'bold',
-    },
-    barreChordFaded: {
-        zIndex: 100,
-        width: 40,
-        textAlign: 'center',
-        alignItems: 'center',
-        height: 22,
-        backgroundColor: '#85B59C',
-        opacity: .5,
-        borderRadius: 4,
-        fontWeight: 'bold',
-    },
-    barreChordText: {
-        position: 'absolute',
-        left: 185,
-        top: -6,
-        color: '#85B59C',
-        fontSize: 18,
-        fontWeight: 'bold',
-    },
-    string: {
-        width: 1.5,
-        height: '100%',
-        alignItems: 'center',
-        alignContent: 'center',
-        backgroundColor: '#85B59C',
-        zIndex: 10,
-    },
-    lightString: {
-        width: 1.5,
-        height: '100%',
-        alignItems: 'center',
-        alignContent: 'center',
-        // backgroundColor: 'rgba(133,181,155,0.32)',
-        backgroundColor: '#85B59C',
-        zIndex: 10,
-    },
-    fingerTextWrapper: {
-        flexDirection: 'row',
-        height: '100%',
-        alignContent: 'center',
-        alignItems: 'center',
-    },
-    fingerText: {
-        backgroundColor: '#85B59C',
-        color: 'black',
-        textAlign: 'center',
-        width: 22,
-        height: 22,
-        fontSize: 18,
-        borderRadius: 100,
-        fontWeight: 'bold',
-    },
-    unPlayedStringStyle: {
-        color: '#85B59C',
-        width: 22,
-        height: 22,
-        fontSize: 12,
-        textAlign: 'center',
-        borderRadius: 100,
-        top: -25,
-        fontWeight: 'bold',
-        backgroundColor: 'transparent',
-    },
-    openStringStyle: {
-        color: '#85B59C',
-        width: 9,
-        height: 9,
-        position: 'absolute',
-        fontSize: 12,
-        textAlign: 'center',
-        borderRadius: 100,
-        top: -22,
-        left: -5,
-        fontWeight: 'bold',
-        backgroundColor: '#85B59C',
-    },
-    fretNumberStyle: {
-        color: '#85B59C',
-        width: 22,
-        height: 22,
         fontSize: 16,
         textAlign: 'center',
-        bottom: -50,
+        color: '#85B59C',
+    },
+    gridContainer: {
+        flexDirection: "row",
+        flexWrap: "wrap",
+        justifyContent: "space-between",
+        alignItems: "center",
+        alignContent: "center",
+        columnGap: 12,
+        rowGap: 24,
+    },
+    gridItemTwo: {
+        width: '48.3%',
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    gridItemFull: {
+        width: '100%',
+        justifyContent: "center",
+        alignItems: "center",
     },
     buttonStyle: {
         backgroundColor: '#85B59C',

@@ -9,24 +9,9 @@ import { ActionSheetProvider } from '@expo/react-native-action-sheet';
 
 export default function Layout() {
 
-    const createDbIfNeeded = async (db: SQLiteDatabase) => {
-        // Create the chord progressions table
-        await db.execAsync(
-            `
-                CREATE TABLE IF NOT EXISTS ChordProgressions (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT,
-                genre TEXT,
-                difficulty TEXT,
-                key TEXT,
-                chords TEXT
-            );`
-        );
-    }
-
   return (
       <>
-          <SQLiteProvider databaseName="jamerator.db" onInit={createDbIfNeeded}>
+          <SQLiteProvider databaseName="chords.db" assetSource={{ assetId: require('../assets/chords.db') }}>
               <ActionSheetProvider>
                   <Stack screenOptions={{  }}>
                       <Stack.Screen name="(tabs)" options={{
