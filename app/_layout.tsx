@@ -1,8 +1,8 @@
 import { Stack } from 'expo-router/stack';
 import React from "react";
 import LogoTitle from "@/components/LogoTitle";
-import { SQLiteDatabase, SQLiteProvider } from 'expo-sqlite';
-import {StatusBar} from "expo-status-bar";
+import { SQLiteProvider } from 'expo-sqlite';
+import { StatusBar } from "expo-status-bar";
 import { ActionSheetProvider } from '@expo/react-native-action-sheet';
 
 
@@ -15,7 +15,7 @@ export default function Layout() {
               <ActionSheetProvider>
                   <Stack screenOptions={{  }}>
                       <Stack.Screen name="(tabs)" options={{
-                          headerStyle: { backgroundColor: '#0A130E' },
+                          headerStyle: { backgroundColor: '#000000' },
                           headerTitle: props => <LogoTitle {...props} />,
                       }} />
                   </Stack>

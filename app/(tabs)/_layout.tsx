@@ -1,6 +1,7 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Tabs } from 'expo-router';
 import React from "react";
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 export default function TabLayout() {
     return (
@@ -9,7 +10,7 @@ export default function TabLayout() {
             tabBarActiveTintColor: '#85B59C',
             tabBarInactiveTintColor: '#2f483b',
                 tabBarStyle: {
-                    backgroundColor: '#0A130E', // Change this to your desired color
+                    backgroundColor: '#000000', // Change this to your desired color
                     borderTopColor: '#222f20',
                 },
         }}>
@@ -17,24 +18,16 @@ export default function TabLayout() {
                 name="index"
                 options={{
                     headerShown: false,
-                    title: 'Generator',
-                    tabBarIcon: ({ color }) => <FontAwesome size={28} name="flask" color={color} />,
+                    title: 'Generate',
+                    tabBarIcon: ({ color }) => <FontAwesome size={24} name="music" color={color} />,
                 }}
             />
             <Tabs.Screen
                 name="chords"
                 options={{
                     headerShown: false,
-                    title: 'Library',
-                    tabBarIcon: ({ color }) => <FontAwesome size={28} name="music" color={color} />,
-                }}
-            />
-            <Tabs.Screen
-                name="testing"
-                options={{
-                    headerShown: false,
-                    title: 'Testing',
-                    tabBarIcon: ({ color }) => <FontAwesome size={28} name="question-circle" color={color} />,
+                    title: 'My Jams',
+                    tabBarIcon: ({ color }) => <MaterialIcons size={26} name="my-library-music" color={color} />,
                 }}
             />
         </Tabs>

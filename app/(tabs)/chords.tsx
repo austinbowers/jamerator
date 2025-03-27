@@ -1,7 +1,8 @@
-import {View, Text, TouchableOpacity, FlatList, SafeAreaView, StyleSheet} from 'react-native';
+import {View, Text, SafeAreaView, StyleSheet, ActivityIndicator, FlatList} from 'react-native';
 import React, {useCallback, useState} from "react";
 import {useSQLiteContext} from "expo-sqlite";
 import {useFocusEffect, Link} from "expo-router";
+import ChordDiagram from "@/components/ChordDiagram";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 
 
@@ -9,17 +10,38 @@ export default function Chords() {
 
     const database = useSQLiteContext();
     const [chordProgressions, setChordProgressions] = useState<any>([]);
+    const [chordsLoading, setChordsLoading] = useState(false);
 
     const loadData = async () => {
+        setChordsLoading(true);
+
+        // Step 1: Fetch the jams from the my_jams table
         const result = await database.getAllAsync<{
             id: number;
-            name: string;
-            genre: string;
-            difficulty: string;
-            key: string;
-            chords: string;
-        }>("SELECT * FROM ChordProgressions ORDER BY id DESC");
-        setChordProgressions(result);
+            chord_ids: string;
+        }>("SELECT * FROM my_jams ORDER BY id DESC");
+
+        // Step 2: Loop through each row in my_jams and fetch the chords based on chord_ids
+        const jamsWithChords = await Promise.all(result.map(async (jam) => {
+            const chordIds = jam.chord_ids.split(',').map(id => parseInt(id)); // Split and convert to integer array
+
+            // Step 3: Fetch the chords from the chords table
+            const chords = await database.getAllAsync<{
+                id: number;
+                name: string;
+                // other chord properties
+            }>(`SELECT * FROM chords WHERE id IN (${chordIds.join(',')})`);
+
+            // Step 4: Return the jam with the corresponding chords
+            return {
+                ...jam,
+                chords, // Add the fetched chords to the jam object
+            };
+        }));
+
+        // Step 5: Update the state with the jam data including the chords
+        setChordProgressions(jamsWithChords);
+        setChordsLoading(false);
     };
 
     const handleDelete = async (id: number) => {
@@ -38,56 +60,38 @@ export default function Chords() {
         }, [])
     );
 
-    const ChordList = (chords) => {
-        // Convert the string to an array
-        const chordData = JSON.parse(chords);
-
-        return (
-            <View style={{flexDirection: 'row', gap: 8}}>
-                {chordData.map((item) => (
-                    <Text key={item.id} style={{marginTop: 8,color:'#FFFFFF', flexDirection: 'row', fontWeight: 'bold'}}>{item.name}</Text>
-                ))}
-            </View>
-        );
-    };
-
     return (
-        <View style={{backgroundColor: '#0A130E', flex: 1}}>
+        <View style={{backgroundColor: '#000000', flex: 1}}>
             <Text style={{color: 'white', fontWeight: 'bold', fontSize: 20, paddingHorizontal: 16, paddingTop: 24, paddingBottom: 16}}>My Chord Progressions</Text>
             <SafeAreaView style={{ }}>
                 <View>
-                    {chordProgressions &&
-                        <FlatList keyExtractor={(item) => item.id.toString()} style={{marginBottom: 70 }} data={chordProgressions} renderItem={({ item }) => {
-                            return (
-                                <Link style={{flexDirection: 'column', gap: 8, backgroundColor: '#0F1914', margin: 10, borderRadius: 6,  padding: 16, }}
-                                      href={{
-                                          pathname: '/progressions/view',
-                                          params: { id: item.id, name: item.name, difficulty: item.difficulty, key: item.key, genre: item.genre, chords: item.chords }
-                                      }}>
-                                    <View style={{position: 'relative', width: '100%' }}>
-                                        {/*<Text style={{color: 'green'}}>{item.id}</Text>*/}
-                                        <Text style={{color: 'white', fontWeight: 'bold', fontSize: 16, marginBottom: 12}}>{item.name}</Text>
-                                        <View style={{flexDirection: 'row', gap: 8, marginBottom: 6 }}>
-                                            <Text style={styles.badge}>{item.difficulty}</Text>
-                                            <Text style={styles.badge}>{item.key}</Text>
-                                            <Text style={styles.badge}>{item.genre}</Text>
-                                        </View>
-                                        <Text style={{color: 'white'}}>
-                                            <View>
-                                                {ChordList(item.chords)}
-                                            </View>
-                                        </Text>
-                                        <View style={{ position: 'absolute', top: 32, right: 0}}>
-                                            <FontAwesome size={14} name="chevron-right" color={'#85B59C'} />
-                                        </View>
-                                        {/*<TouchableOpacity onPress={() => {handleDelete(item.id)}} style={{position: 'absolute', top: '40%', right: 0}}>*/}
-                                        {/*    <FontAwesome size={14} name="trash" color={'#85B59C'} />*/}
-                                        {/*</TouchableOpacity>*/}
-                                    </View>
-                                </Link>
-                            )
-                        }} />
-                    }
+                    {chordsLoading ? (
+                        <View style={{marginTop: 24}}>
+                            <ActivityIndicator size="large" color="#85B59C" />
+                        </View>
+                    ) : (
+                        <View>
+                            {chordProgressions &&
+                                <FlatList keyExtractor={(item) => item.id.toString()} style={{marginBottom: 70 }} data={chordProgressions} renderItem={({ item }) => {
+                                    return (
+                                        <Link style={{flexDirection: 'row', gap: 8, backgroundColor: '#0F1914', margin: 10, borderRadius: 6,  padding: 16, position: 'relative' }}
+                                              href={{
+                                                  pathname: '/progressions/view',
+                                                  params: { chords: JSON.stringify(item.chords) }
+                                              }}>
+                                            {item.chords && item.chords.map((chord) => {
+                                                return (
+                                                    <View key={chord.id}>
+                                                        <Text style={styles.badge}>{chord.key}{chord.suffix}</Text>
+                                                    </View>
+                                                )
+                                            })}
+                                        </Link>
+                                    )
+                                }} />
+                            }
+                        </View>
+                    )}
                 </View>
             </SafeAreaView>
         </View>
@@ -104,6 +108,7 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         fontSize: 12,
         fontWeight: 'bold',
+        marginRight: 8,
     },
     buttonStyle: {
         backgroundColor: '#85B59C',
