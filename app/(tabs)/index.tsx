@@ -23,7 +23,7 @@ export default function Index() {
                 for (const chord of progressionData) {
                     try {
                         const result = await db.getFirstAsync(
-                            "SELECT * FROM chords WHERE key = $keyValue AND suffix = $suffixValue ORDER BY RANDOM() LIMIT 1",
+                            "SELECT * FROM chords WHERE key = $keyValue AND suffix = $suffixValue ORDER BY id LIMIT 1",
                             { $keyValue: chord.key, $suffixValue: chord.suffix }
                         );
 
@@ -116,18 +116,20 @@ export default function Index() {
         // Step 1: Create the table if it doesn't already exist
         await db.runAsync(
             `CREATE TABLE IF NOT EXISTS my_jams (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            chord_ids TEXT
-        );`
+             id INTEGER PRIMARY KEY AUTOINCREMENT,
+             chord_ids TEXT,
+             progression_key TEXT,
+             progression_genre TEXT
+             );`
         );
 
         // Step 2: Get all chord ids as a comma-separated string
         const chordIds = chordData.map(chord => chord.id).join(',');
 
-        // Step 3: Insert the comma-separated string into the `my_jams` table
+        // Step 3: Insert the values into the `my_jams` table
         await db.runAsync(
-            "INSERT INTO my_jams (chord_ids) VALUES (?);",
-            [chordIds]
+            "INSERT INTO my_jams (chord_ids, progression_key, progression_genre) VALUES (?, ?, ?);",
+            [chordIds, selectedKey, selectedGenre] // Correct parameter passing
         );
     };
 

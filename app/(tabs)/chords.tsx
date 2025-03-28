@@ -1,4 +1,4 @@
-import {View, Text, SafeAreaView, StyleSheet, ActivityIndicator, FlatList} from 'react-native';
+import {View, Text, SafeAreaView, StyleSheet, ActivityIndicator, FlatList, TouchableOpacity} from 'react-native';
 import React, {useCallback, useState} from "react";
 import {useSQLiteContext} from "expo-sqlite";
 import {useFocusEffect, Link} from "expo-router";
@@ -46,7 +46,7 @@ export default function Chords() {
 
     const handleDelete = async (id: number) => {
         try {
-            database.runAsync("DELETE FROM ChordProgressions WHERE id = ?", [id]);
+            database.runAsync("DELETE FROM my_jams WHERE id = ?", [id]);
             loadData();
         }
         catch (error) {
@@ -74,19 +74,28 @@ export default function Chords() {
                             {chordProgressions &&
                                 <FlatList keyExtractor={(item) => item.id.toString()} style={{marginBottom: 70 }} data={chordProgressions} renderItem={({ item }) => {
                                     return (
-                                        <Link style={{flexDirection: 'row', gap: 8, backgroundColor: '#0F1914', margin: 10, borderRadius: 6,  padding: 16, position: 'relative' }}
-                                              href={{
-                                                  pathname: '/progressions/view',
-                                                  params: { chords: JSON.stringify(item.chords) }
-                                              }}>
-                                            {item.chords && item.chords.map((chord) => {
-                                                return (
-                                                    <View key={chord.id}>
-                                                        <Text style={styles.badge}>{chord.key}{chord.suffix}</Text>
-                                                    </View>
-                                                )
-                                            })}
-                                        </Link>
+                                        <View style={{padding: 16, backgroundColor: '#0F1914', margin: 10, borderRadius: 6, position: 'relative', overflow: 'hidden' }} key={item.id}>
+
+                                            <Link
+                                                  href={{
+                                                      pathname: '/progressions/view',
+                                                      params: { chords: JSON.stringify(item.chords) }
+                                                  }}>
+                                                <View style={{paddingBottom: 16, width: '100%'}}>
+                                                    <Text style={{color: 'white', fontWeight: 'bold', fontSize: 16}}>{item.progression_genre} in {item.progression_key}</Text>
+                                                </View>
+                                                <View style={{flexDirection: 'row', flexWrap: 'wrap', gap: 8}}>
+                                                {item.chords && item.chords.map((chord) => {
+                                                    return (
+                                                       <Text key={chord.id} style={styles.badge}>{chord.key}{chord.suffix}</Text>
+                                                    )
+                                                })}
+                                                </View>
+                                            </Link>
+                                            <TouchableOpacity onPress={() => (handleDelete(item.id))} style={{position: 'absolute', alignItems: 'center', alignContent: 'center',  right: 0, top: 12, height: 40, width: 40 }}>
+                                                <FontAwesome color={'green'} name={'trash-o'} size={20}></FontAwesome>
+                                            </TouchableOpacity>
+                                        </View>
                                     )
                                 }} />
                             }
@@ -108,7 +117,6 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         fontSize: 12,
         fontWeight: 'bold',
-        marginRight: 8,
     },
     buttonStyle: {
         backgroundColor: '#85B59C',
