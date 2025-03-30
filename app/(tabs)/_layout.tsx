@@ -2,16 +2,19 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Tabs } from 'expo-router';
 import React from "react";
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import {useTheme} from "@/scripts/ThemeContext";
 
 export default function TabLayout() {
+    const { theme } = useTheme();
+
     return (
         <Tabs
             screenOptions={{
-            tabBarActiveTintColor: '#85B59C',
-            tabBarInactiveTintColor: '#2f483b',
+            tabBarActiveTintColor: theme.primary,
+            tabBarInactiveTintColor: theme.gray,
                 tabBarStyle: {
-                    backgroundColor: '#000000', // Change this to your desired color
-                    borderTopColor: '#222f20',
+                    backgroundColor: theme.background, // Change this to your desired color
+                    borderTopColor: theme.primary30,
                 },
         }}>
             <Tabs.Screen
