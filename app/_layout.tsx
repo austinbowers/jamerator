@@ -1,5 +1,5 @@
 import { Stack } from 'expo-router/stack';
-import React, {useEffect} from "react";
+import React from "react";
 import LogoTitle from "@/components/LogoTitle";
 import {SQLiteProvider } from 'expo-sqlite';
 import { StatusBar } from "expo-status-bar";

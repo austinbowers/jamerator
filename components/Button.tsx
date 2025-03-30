@@ -6,7 +6,7 @@ import FontAwesome from "@expo/vector-icons/FontAwesome";
 
 const CustomButton = ({ title, onPress, iconName }) => {
     const [isPressed, setIsPressed] = useState(false);
-    const { theme, toggleTheme } = useTheme();
+    const { theme } = useTheme();
 
     return (
         <TouchableOpacity

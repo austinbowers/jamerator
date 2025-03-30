@@ -4,7 +4,7 @@ import {useTheme} from "@/scripts/ThemeContext";
 
 export default function ChordDiagram({chordData}) {
 
-    const { theme, toggleTheme } = useTheme();
+    const { theme } = useTheme();
 
     const processBaseFret = (frets) =>
         Math.max(...frets) > 4 ? Math.min(...frets.filter((f) => f > 0)) : 1;

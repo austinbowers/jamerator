@@ -1,21 +1,29 @@
-import {ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View} from "react-native";
+import {ActivityIndicator, ScrollView, StyleSheet, Text,  View} from "react-native";
 import ChordDiagram from "@/components/ChordDiagram";
 import React, {useEffect, useState} from "react";
 import {fetchChatCompletion} from "@/scripts/api";
 import {useSQLiteContext} from "expo-sqlite";
 import { useActionSheet } from '@expo/react-native-action-sheet';
-import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { useTheme } from '@/scripts/ThemeContext';
 import CustomButton from "@/components/Button";
 import CustomOutlineButton from "@/components/OutlineButton";
-import * as SQLite from 'expo-sqlite';
+import FlashMessage, { showMessage } from 'react-native-flash-message';
 
 
 
 export default function Index() {
-    const { theme, toggleTheme } = useTheme();
+    const { theme } = useTheme();
 
     const db = useSQLiteContext();
+
+    const showSuccessAlert = () => {
+        showMessage({
+            message: "Saved Successfully",
+            description: "Chord progression saved to My Jams",
+            type: "success",
+            icon: "success",
+        });
+    };
 
 
     const [chordsLoading, setChordsLoading] = useState(false)
@@ -140,64 +148,57 @@ export default function Index() {
             "INSERT INTO my_jams (chord_ids, progression_key, progression_genre) VALUES (?, ?, ?);",
             [chordIds, selectedKey, selectedGenre] // Correct parameter passing
         );
+
+        showSuccessAlert();
     };
 
     return (
-
-        <ScrollView style={{flex:1, backgroundColor: theme.background}}>
-            {/* Genre and Key Selectors */}
-            <View style={{paddingTop: 24, paddingHorizontal: 16}}>
-                <View style={ styles.gridContainer }>
-                    <View style={styles.gridItemTwo}>
-                        {/*<TouchableOpacity onPress={showKeyPicker} style={[styles.buttonOutlineStyle, {borderColor: theme.primary}]}>*/}
-                        {/*    <Text style={[styles.buttonOutlineTextStyle, {color: theme.primary}]}>Key: </Text>*/}
-                        {/*    <Text style={{ fontWeight: 'bold', fontSize: 16, textAlign: 'center', color: theme.text,}}>{selectedKey}</Text>*/}
-                        {/*</TouchableOpacity>*/}
-                        <CustomButton title={'Key: ' + selectedKey} onPress={showKeyPicker} ></CustomButton>
-                    </View>
-                    <View style={styles.gridItemTwo}>
-                        {/*<TouchableOpacity onPress={showGenrePicker} style={[styles.buttonOutlineStyle, {borderColor: theme.primary}]}>*/}
-                        {/*    <Text style={[styles.buttonOutlineTextStyle, {color: theme.primary}]}>Genre: </Text>*/}
-                        {/*    <Text style={{ fontWeight: 'bold', fontSize: 16, textAlign: 'center', color: theme.text,}}>{selectedGenre}</Text>*/}
-                        {/*</TouchableOpacity>*/}
-                        <CustomButton title={'Genre: ' + selectedGenre} onPress={showGenrePicker}></CustomButton>
-
+        <View style={{flex:1, backgroundColor: theme.background}}>
+            <FlashMessage position="top" />
+            <ScrollView>
+                {/* Genre and Key Selectors */}
+                <View style={{paddingTop: 24, paddingHorizontal: 16}}>
+                    <View style={ styles.gridContainer }>
+                        <View style={styles.gridItemTwo}>
+                            <CustomButton title={'Key: ' + selectedKey} onPress={showKeyPicker} ></CustomButton>
+                        </View>
+                        <View style={styles.gridItemTwo}>
+                            <CustomButton title={'Genre: ' + selectedGenre} onPress={showGenrePicker}></CustomButton>
+                        </View>
                     </View>
                 </View>
-            </View>
-            {/* Generate and Loading Indicator*/}
-            <View style={{paddingHorizontal: 16, paddingBottom: 16}}>
-            {chordsLoading ? (
-                <View style={{marginTop: 16}}>
-                    <ActivityIndicator size="large" color="#85B59C" />
+                {/* Generate and Loading Indicator*/}
+                <View style={{paddingHorizontal: 16, paddingBottom: 16}}>
+                    {chordsLoading ? (
+                        <View style={{marginTop: 16}}>
+                            <ActivityIndicator size="large" color="#85B59C" />
+                        </View>
+                    ) : (
+                        <View style={{marginTop: 16}}>
+                            <CustomButton iconName={'music'} title={'Generate'} onPress={getCompletion}></CustomButton>
+                        </View>
+                    )}
                 </View>
-            ) : (
-                <View style={{marginTop: 16}}>
-                    <CustomButton iconName={'music'} title={'Generate'} onPress={getCompletion}></CustomButton>
-                </View>
-            )}
-            </View>
-            {progressionData.length > 0 &&
-                <View style={{paddingHorizontal:16, alignItems: 'center'}}>
-                    <CustomOutlineButton iconName={'save'} onPress={handleSave} title={"Add to My Jams"}></CustomOutlineButton>
-                    <View style={{marginTop: 32, backgroundColor: theme.background, flexDirection: 'row', flexWrap: 'wrap', alignSelf: 'stretch' }}>
-                        {chordData && chordData.map((data, index) => (
-                            <View key={index} style={{backgroundColor: theme.primary900, width: 'auto', minWidth: '23.5%', flex:1, margin:2, padding: 12}}>
-                                <Text style={{color: theme.text, fontSize: 18, fontWeight: 'bold'}}>{data.key}{data.suffix}</Text>
-                            </View>
-                        ))}
+                {progressionData.length > 0 &&
+                    <View style={{paddingHorizontal:16, alignItems: 'center'}}>
+                        <CustomOutlineButton iconName={'save'} onPress={handleSave} title={"Add to My Jams"}></CustomOutlineButton>
+                        <View style={{marginTop: 32, backgroundColor: theme.background, flexDirection: 'row', flexWrap: 'wrap', alignSelf: 'stretch' }}>
+                            {chordData && chordData.map((data, index) => (
+                                <View key={index} style={{backgroundColor: theme.primary900, width: 'auto', minWidth: '23.5%', flex:1, margin:2, padding: 12}}>
+                                    <Text style={{color: theme.text, fontSize: 18, fontWeight: 'bold'}}>{data.key}{data.suffix}</Text>
+                                </View>
+                            ))}
+                        </View>
                     </View>
+
+                }
+                <View style={{padding: 16}}>
+                    {chordData && chordData.map((data, index) => (
+                        <ChordDiagram key={index} chordData={data}></ChordDiagram>
+                    ))}
                 </View>
-
-            }
-
-
-            <View style={{padding: 16}}>
-                {chordData && chordData.map((data, index) => (
-                    <ChordDiagram key={index} chordData={data}></ChordDiagram>
-                ))}
-            </View>
-        </ScrollView>
+            </ScrollView>
+        </View>
     );
 }
 const styles = StyleSheet.create({

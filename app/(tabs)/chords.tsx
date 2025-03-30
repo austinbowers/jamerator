@@ -75,6 +75,7 @@ export default function Chords() {
         }, [])
     );
 
+
     return (
         <View style={{backgroundColor: theme.background, flex: 1}}>
             <Text style={{color: theme.text, fontWeight: 'bold', fontSize: 20, paddingHorizontal: 16, paddingTop: 24, paddingBottom: 16}}>My Chord Progressions</Text>

@@ -4,7 +4,7 @@ import {useTheme} from "@/scripts/ThemeContext";
 
 export default function LogoTitle() {
 
-    const { theme, toggleTheme } = useTheme();
+    const { theme } = useTheme();
 
     return (
         <Image
