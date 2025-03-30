@@ -4,22 +4,22 @@ import {useTheme} from "@/scripts/ThemeContext";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 
 
-const CustomButton = ({ title, onPress, iconName }) => {
+const CustomOutlineButton = ({ title, onPress, iconName }) => {
     const [isPressed, setIsPressed] = useState(false);
     const { theme, toggleTheme } = useTheme();
 
     return (
         <TouchableOpacity
-            style={[styles.button, isPressed ? {backgroundColor: theme.pressedColor} : {backgroundColor: theme.primary}]}
+            style={[styles.button, isPressed ? {borderColor: theme.pressedColor} : {borderColor: theme.primary}]}
             onPress={onPress}
             onPressIn={() => setIsPressed(true)}
             onPressOut={() => setIsPressed(false)}
             activeOpacity={1}
         >
             {iconName &&
-            <FontAwesome name={iconName} size={16}></FontAwesome>
+                <FontAwesome color={theme.primary} name={iconName} size={16}></FontAwesome>
             }
-            <Text style={[styles.buttonText, {color: theme.buttonText}]}>{title}</Text>
+            <Text style={[styles.buttonText, {color: theme.primary}]}>{title}</Text>
         </TouchableOpacity>
     );
 };
@@ -30,6 +30,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         borderRadius: 5,
         width: '100%',
+        borderWidth: 1,
         flexDirection: 'row',
         gap: 6,
         justifyContent: 'center',
@@ -42,4 +43,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default CustomButton;
+export default CustomOutlineButton;

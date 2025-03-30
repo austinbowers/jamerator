@@ -27,13 +27,22 @@ export default function ProgressionView() {
     }, []);
 
     return (
-        <ScrollView style={{backgroundColor: theme.background}}>
-            <View>
-                {arrayChords && arrayChords.map((data, index) => (
-                    <ChordDiagram key={index} chordData={data}></ChordDiagram>
-                ))}
-            </View>
-        </ScrollView>
+        <View>
+            <ScrollView style={{backgroundColor: theme.background, padding: 16}}>
+                <View style={{backgroundColor: theme.background, flexDirection: 'row', flexWrap: 'wrap', alignSelf: 'stretch' }}>
+                    {arrayChords && arrayChords.map((data, index) => (
+                        <View key={index} style={{backgroundColor: theme.primary900, width: 'auto', minWidth: '23.5%', flex:1, margin:2, padding: 12}}>
+                            <Text style={{color: theme.text, fontSize: 18, fontWeight: 'bold'}}>{data.key}{data.suffix}</Text>
+                        </View>
+                    ))}
+                </View>
+                <View>
+                    {arrayChords && arrayChords.map((data, index) => (
+                        <ChordDiagram key={index} chordData={data}></ChordDiagram>
+                    ))}
+                </View>
+            </ScrollView>
+        </View>
     )
 }
 

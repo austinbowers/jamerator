@@ -28,12 +28,25 @@ export default function Chords() {
             const chordIds = jam.chord_ids.split(',').map(id => parseInt(id)); // Split and convert to integer array
 
             // Step 3: Fetch the chords from the chords table
-            const chords = await database.getAllAsync<{
-                id: number;
-                name: string;
-                // other chord properties
-            }>(`SELECT * FROM chords WHERE id IN (${chordIds.join(',')})`);
+            // const chords = await database.getAllAsync<{
+            //     id: number;
+            //     name: string;
+            //     // other chord properties
+            // }>(`SELECT * FROM chords WHERE id IN (${chordIds.join(',')})`);
+            let chords = [];
+            for (const chord of chordIds) {
+                try {
+                    const result = await database.getFirstAsync("SELECT * FROM chords WHERE id = $chord ORDER BY id LIMIT 1", { $chord: chord});
 
+                    if (result) {
+                        chords.push(result);
+                    } else {
+                        console.error(`Chord not found in database`);
+                    }
+                } catch (error) {
+                    console.error("Database Error:", error);
+                }
+            }
             // Step 4: Return the jam with the corresponding chords
             return {
                 ...jam,
@@ -76,8 +89,7 @@ export default function Chords() {
                             {chordProgressions &&
                                 <FlatList keyExtractor={(item) => item.id.toString()} style={{marginBottom: 70 }} data={chordProgressions} renderItem={({ item }) => {
                                     return (
-                                        <View style={{padding: 16, backgroundColor: theme.primary30, margin: 10, borderRadius: 6, position: 'relative', overflow: 'hidden' }} key={item.id}>
-
+                                        <View style={{padding: 16, backgroundColor: theme.primary900, margin: 10, borderRadius: 6, position: 'relative', overflow: 'hidden' }}>
                                             <Link
                                                   href={{
                                                       pathname: '/progressions/view',
@@ -87,9 +99,9 @@ export default function Chords() {
                                                     <Text style={{color: theme.text, fontWeight: 'bold', fontSize: 16}}>{item.progression_genre} in {item.progression_key}</Text>
                                                 </View>
                                                 <View style={{flexDirection: 'row', flexWrap: 'wrap', gap: 8}}>
-                                                {item.chords && item.chords.map((chord) => {
+                                                {item.chords && item.chords.map((chord,index) => {
                                                     return (
-                                                       <Text key={chord.id} style={[styles.badge, {backgroundColor: theme.primary, color: theme.buttonText}]}>{chord.key}{chord.suffix}</Text>
+                                                       <Text key={index} style={[styles.badge, {backgroundColor: theme.primary, color: theme.buttonText}]}>{chord.key}{chord.suffix}</Text>
                                                     )
                                                 })}
                                                 </View>

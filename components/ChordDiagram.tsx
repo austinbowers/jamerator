@@ -70,7 +70,7 @@ export default function ChordDiagram({chordData}) {
                                 const fret = data.processedFrets ? data.processedFrets[stringIndex] : null;
 
                                 return (
-                                    <View key={string} style={[styles.string, {width: 2 + (-stringIndex * .25), backgroundColor: theme.primary}]}>
+                                    <View key={string} style={[styles.string, {width: 2 + (-stringIndex * .2), backgroundColor: theme.primary}]}>
                                         {/* Display finger position if it matches the current fret and does not equal 'x' */}
                                         { fret - data.processedBaseFret === fretIndex && (fret !== data.barres) ? (
                                             <View style={styles.fingerTextWrapper}>
@@ -136,7 +136,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     chordName: {
-        color: '#DFFFEE',
         fontWeight: 'bold',
         marginBottom: 24,
         fontSize: 18,
@@ -145,7 +144,6 @@ const styles = StyleSheet.create({
         width: 160, // Adjust width to 80% of the screen width
         height: 40,
         borderBottomWidth: 1,
-        borderColor: 'rgba(133,181,156,0.5)',
         flexDirection: 'row',
         alignItems: 'center',
         alignSelf: 'center',
@@ -256,25 +254,5 @@ const styles = StyleSheet.create({
         fontSize: 16,
         textAlign: 'center',
         bottom: -50,
-    },
-    buttonStyle: {
-        backgroundColor: '#85B59C',
-        borderRadius: 6,
-        alignItems: 'center',
-        alignContent: 'center',
-        paddingLeft: 16,
-        paddingRight: 16,
-        paddingTop: 12,
-        paddingBottom: 12,
-        width: '100%',
-        flexDirection: 'row',
-        justifyContent: 'center',
-        gap: 6
-    },
-    buttonTextStyle: {
-        fontWeight: 'bold',
-        fontSize: 16,
-        textAlign: 'center',
-        color: 'black'
     },
 });

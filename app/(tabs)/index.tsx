@@ -7,11 +7,16 @@ import { useActionSheet } from '@expo/react-native-action-sheet';
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { useTheme } from '@/scripts/ThemeContext';
 import CustomButton from "@/components/Button";
+import CustomOutlineButton from "@/components/OutlineButton";
+import * as SQLite from 'expo-sqlite';
+
+
 
 export default function Index() {
     const { theme, toggleTheme } = useTheme();
 
     const db = useSQLiteContext();
+
 
     const [chordsLoading, setChordsLoading] = useState(false)
     const [progressionData, setProgressionData] = useState([])
@@ -25,7 +30,7 @@ export default function Index() {
                 for (const chord of progressionData) {
                     try {
                         const result = await db.getFirstAsync(
-                            "SELECT * FROM chords WHERE key = $keyValue AND suffix = $suffixValue ORDER BY RANDOM() LIMIT 1",
+                            "SELECT * FROM chords WHERE key = $keyValue AND suffix = $suffixValue ORDER BY id LIMIT 1",
                             { $keyValue: chord.key, $suffixValue: chord.suffix }
                         );
 
@@ -139,16 +144,16 @@ export default function Index() {
 
     return (
 
-        <ScrollView style={{flex:1, backgroundColor: theme.background, padding: 16}}>
+        <ScrollView style={{flex:1, backgroundColor: theme.background}}>
             {/* Genre and Key Selectors */}
-            <View>
+            <View style={{paddingTop: 24, paddingHorizontal: 16}}>
                 <View style={ styles.gridContainer }>
                     <View style={styles.gridItemTwo}>
                         {/*<TouchableOpacity onPress={showKeyPicker} style={[styles.buttonOutlineStyle, {borderColor: theme.primary}]}>*/}
                         {/*    <Text style={[styles.buttonOutlineTextStyle, {color: theme.primary}]}>Key: </Text>*/}
                         {/*    <Text style={{ fontWeight: 'bold', fontSize: 16, textAlign: 'center', color: theme.text,}}>{selectedKey}</Text>*/}
                         {/*</TouchableOpacity>*/}
-                        <CustomButton title={'Key: ' + selectedKey} onPress={showKeyPicker}></CustomButton>
+                        <CustomButton title={'Key: ' + selectedKey} onPress={showKeyPicker} ></CustomButton>
                     </View>
                     <View style={styles.gridItemTwo}>
                         {/*<TouchableOpacity onPress={showGenrePicker} style={[styles.buttonOutlineStyle, {borderColor: theme.primary}]}>*/}
@@ -161,23 +166,37 @@ export default function Index() {
                 </View>
             </View>
             {/* Generate and Loading Indicator*/}
+            <View style={{paddingHorizontal: 16, paddingBottom: 16}}>
             {chordsLoading ? (
                 <View style={{marginTop: 16}}>
                     <ActivityIndicator size="large" color="#85B59C" />
                 </View>
             ) : (
                 <View style={{marginTop: 16}}>
-                    <CustomButton title={'Generate'} onPress={getCompletion}></CustomButton>
+                    <CustomButton iconName={'music'} title={'Generate'} onPress={getCompletion}></CustomButton>
                 </View>
             )}
-            {chordData && chordData.map((data, index) => (
-                <ChordDiagram key={index} chordData={data}></ChordDiagram>
-            ))}
+            </View>
             {progressionData.length > 0 &&
-                <View style={{marginBottom: 80, marginTop: 40, alignItems: 'center'}}>
-                    <CustomButton onPress={handleSave} title={"Add to My Jams"}></CustomButton>
+                <View style={{paddingHorizontal:16, alignItems: 'center'}}>
+                    <CustomOutlineButton iconName={'save'} onPress={handleSave} title={"Add to My Jams"}></CustomOutlineButton>
+                    <View style={{marginTop: 32, backgroundColor: theme.background, flexDirection: 'row', flexWrap: 'wrap', alignSelf: 'stretch' }}>
+                        {chordData && chordData.map((data, index) => (
+                            <View key={index} style={{backgroundColor: theme.primary900, width: 'auto', minWidth: '23.5%', flex:1, margin:2, padding: 12}}>
+                                <Text style={{color: theme.text, fontSize: 18, fontWeight: 'bold'}}>{data.key}{data.suffix}</Text>
+                            </View>
+                        ))}
+                    </View>
                 </View>
+
             }
+
+
+            <View style={{padding: 16}}>
+                {chordData && chordData.map((data, index) => (
+                    <ChordDiagram key={index} chordData={data}></ChordDiagram>
+                ))}
+            </View>
         </ScrollView>
     );
 }
