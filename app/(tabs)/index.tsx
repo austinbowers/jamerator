@@ -5,9 +5,11 @@ import {fetchChatCompletion} from "@/scripts/api";
 import {useSQLiteContext} from "expo-sqlite";
 import { useActionSheet } from '@expo/react-native-action-sheet';
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-
+import { useTheme } from '@/scripts/ThemeContext';
+import CustomButton from "@/components/Button";
 
 export default function Index() {
+    const { theme, toggleTheme } = useTheme();
 
     const db = useSQLiteContext();
 
@@ -23,7 +25,7 @@ export default function Index() {
                 for (const chord of progressionData) {
                     try {
                         const result = await db.getFirstAsync(
-                            "SELECT * FROM chords WHERE key = $keyValue AND suffix = $suffixValue ORDER BY id LIMIT 1",
+                            "SELECT * FROM chords WHERE key = $keyValue AND suffix = $suffixValue ORDER BY RANDOM() LIMIT 1",
                             { $keyValue: chord.key, $suffixValue: chord.suffix }
                         );
 
@@ -86,13 +88,14 @@ export default function Index() {
     ];
 
     const genres = [
-        "Rock", "Blues", "Jazz", "Pop", "Folk", "Country"
+        "Rock", "Blues", "Jazz", "Pop", "Folk", "Country", "Funk", "Metal", "Neo-Soul"
     ]
 
     const showKeyPicker = () => {
         showActionSheetWithOptions({
             options: [...keys, "Cancel"],
             cancelButtonIndex: keys.length,
+            tintColor: theme.primary,
         },(selectedIndex) => {
             if (selectedIndex !== keys.length) {
                 setSelectedKey(keys[selectedIndex]);
@@ -104,6 +107,7 @@ export default function Index() {
         showActionSheetWithOptions({
             options: [...genres, "Cancel"],
             cancelButtonIndex: genres.length,
+            tintColor: theme.primary,
         },(selectedIndex) => {
             if (selectedIndex !== genres.length) {
                 setSelectedGenre(genres[selectedIndex]);
@@ -135,39 +139,35 @@ export default function Index() {
 
     return (
 
-        <ScrollView style={{flex:1, backgroundColor:'black', padding: 16}}>
+        <ScrollView style={{flex:1, backgroundColor: theme.background, padding: 16}}>
             {/* Genre and Key Selectors */}
-            <View style={{marginTop: 16}}>
+            <View>
                 <View style={ styles.gridContainer }>
                     <View style={styles.gridItemTwo}>
-                        <TouchableOpacity onPress={showKeyPicker} style={styles.buttonOutlineStyle}>
-                            <Text style={styles.buttonOutlineTextStyle}>Key: </Text>
-                            <Text style={{ fontWeight: 'bold', fontSize: 16, textAlign: 'center', color: 'white',}}>{selectedKey}</Text>
-                        </TouchableOpacity>
+                        {/*<TouchableOpacity onPress={showKeyPicker} style={[styles.buttonOutlineStyle, {borderColor: theme.primary}]}>*/}
+                        {/*    <Text style={[styles.buttonOutlineTextStyle, {color: theme.primary}]}>Key: </Text>*/}
+                        {/*    <Text style={{ fontWeight: 'bold', fontSize: 16, textAlign: 'center', color: theme.text,}}>{selectedKey}</Text>*/}
+                        {/*</TouchableOpacity>*/}
+                        <CustomButton title={'Key: ' + selectedKey} onPress={showKeyPicker}></CustomButton>
                     </View>
                     <View style={styles.gridItemTwo}>
-                        <TouchableOpacity onPress={showGenrePicker} style={styles.buttonOutlineStyle}>
-                            <Text style={styles.buttonOutlineTextStyle}>Genre: </Text>
-                            <Text style={{ fontWeight: 'bold', fontSize: 16, textAlign: 'center', color: 'white',}}>{selectedGenre}</Text>
-                        </TouchableOpacity>
+                        {/*<TouchableOpacity onPress={showGenrePicker} style={[styles.buttonOutlineStyle, {borderColor: theme.primary}]}>*/}
+                        {/*    <Text style={[styles.buttonOutlineTextStyle, {color: theme.primary}]}>Genre: </Text>*/}
+                        {/*    <Text style={{ fontWeight: 'bold', fontSize: 16, textAlign: 'center', color: theme.text,}}>{selectedGenre}</Text>*/}
+                        {/*</TouchableOpacity>*/}
+                        <CustomButton title={'Genre: ' + selectedGenre} onPress={showGenrePicker}></CustomButton>
+
                     </View>
                 </View>
             </View>
             {/* Generate and Loading Indicator*/}
             {chordsLoading ? (
-                <View style={{marginTop: 24}}>
+                <View style={{marginTop: 16}}>
                     <ActivityIndicator size="large" color="#85B59C" />
                 </View>
             ) : (
-                <View style={{marginTop: 24}}>
-                    <TouchableOpacity onPress={getCompletion} style={styles.gridContainer}>
-                        <View style={styles.gridItemFull}>
-                            <View style={styles.buttonStyle}>
-                                <FontAwesome size={16} name="music" />
-                                <Text style={styles.buttonTextStyle}>Generate</Text>
-                            </View>
-                        </View>
-                    </TouchableOpacity>
+                <View style={{marginTop: 16}}>
+                    <CustomButton title={'Generate'} onPress={getCompletion}></CustomButton>
                 </View>
             )}
             {chordData && chordData.map((data, index) => (
@@ -175,13 +175,7 @@ export default function Index() {
             ))}
             {progressionData.length > 0 &&
                 <View style={{marginBottom: 80, marginTop: 40, alignItems: 'center'}}>
-                    <TouchableOpacity onPress={handleSave} style={styles.gridContainer}>
-                        <View style={styles.gridItemTwo}>
-                            <View style={styles.buttonStyle}>
-                                <Text style={styles.buttonTextStyle}>Add to My Jams</Text>
-                            </View>
-                        </View>
-                    </TouchableOpacity>
+                    <CustomButton onPress={handleSave} title={"Add to My Jams"}></CustomButton>
                 </View>
             }
         </ScrollView>
@@ -189,9 +183,7 @@ export default function Index() {
 }
 const styles = StyleSheet.create({
     buttonOutlineStyle: {
-        borderColor: '#85B59C',
         borderWidth: 1,
-        color: '#85B59C',
         borderRadius: 6,
         alignItems: 'center',
         alignContent: 'center',
@@ -208,7 +200,6 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         fontSize: 16,
         textAlign: 'center',
-        color: '#85B59C',
     },
     gridContainer: {
         flexDirection: "row",
@@ -216,11 +207,11 @@ const styles = StyleSheet.create({
         justifyContent: "space-between",
         alignItems: "center",
         alignContent: "center",
-        columnGap: 12,
+        columnGap: 14,
         rowGap: 24,
     },
     gridItemTwo: {
-        width: '48.3%',
+        width: '48%',
         justifyContent: "center",
         alignItems: "center",
     },

@@ -1,7 +1,11 @@
 import {Text, View, StyleSheet} from "react-native";
 import {useEffect, useState} from "react";
+import {useTheme} from "@/scripts/ThemeContext";
 
 export default function ChordDiagram({chordData}) {
+
+    const { theme, toggleTheme } = useTheme();
+
     const processBaseFret = (frets) =>
         Math.max(...frets) > 4 ? Math.min(...frets.filter((f) => f > 0)) : 1;
 
@@ -39,25 +43,25 @@ export default function ChordDiagram({chordData}) {
         <View>
             {data &&
                 <View key={data.id} style={styles.chordContainer}>
-                    <Text style={styles.chordName}>{data.key}{data.suffix}</Text>
+                    <Text style={[styles.chordName, {color: theme.text}]}>{data.key}{data.suffix}</Text>
                     {/* Loop through each fret position */}
                     {[...Array(4)].map((_, fretIndex) => (
                         <View
                             key={fretIndex}
-                            style={[styles.fretRow, fretIndex === 0 && styles.firstFret]}
+                            style={[styles.fretRow, {borderColor: theme.primary}]}
                         >
                             {fretIndex === 0 && data.processedBaseFret === 1 && (
-                                <View style={{position: 'absolute', top:-3, width: '100%', height: 3, backgroundColor: '#a2d2b9'}}></View>
+                                <View style={{position: 'absolute', top:-3, width: '100%', height: 4, backgroundColor: theme.primary}}></View>
                             )}
                             {fretIndex === 0 && data.processedBaseFret !== 1 && (
-                                <View style={{position: 'absolute', top:0, width: '100%', height: 2, backgroundColor: '#85B59C'}}></View>
+                                <View style={{position: 'absolute', top:0, width: '100%', height: 2, backgroundColor: theme.primary}}></View>
                             )}
                             {data.processedBaseFret > 1 && fretIndex === 0 &&
-                                <Text style={{position: 'absolute', left: -45, top:9,  color: 'white', fontSize: 16, fontWeight: 'bold'}}>{data.processedBaseFret}fr</Text>
+                                <Text style={{position: 'absolute', left: -45, top:9,  color: theme.text, fontSize: 16, fontWeight: 'bold'}}>{data.processedBaseFret}fr</Text>
                             }
                             {/* Display barre chord if it exists at the current fret */}
                             {data.barres && data.barres - data.processedBaseFret === fretIndex && (
-                                <View style={{width: '100%', position: 'absolute', height: 22, backgroundColor: '#85B59C', opacity: .6,}}>
+                                <View style={{width: '100%', position: 'absolute', height: 22, backgroundColor: theme.primary, opacity: .6,}}>
                                 </View>
                             )}
                             {/* Loop through each string (E, A, D, G, B, e) */}
@@ -66,26 +70,26 @@ export default function ChordDiagram({chordData}) {
                                 const fret = data.processedFrets ? data.processedFrets[stringIndex] : null;
 
                                 return (
-                                    <View key={string} style={styles.string}>
+                                    <View key={string} style={[styles.string, {width: 2 + (-stringIndex * .25), backgroundColor: theme.primary}]}>
                                         {/* Display finger position if it matches the current fret and does not equal 'x' */}
                                         { fret - data.processedBaseFret === fretIndex && (fret !== data.barres) ? (
                                             <View style={styles.fingerTextWrapper}>
                                                 {(data.barres - data.processedBaseFret === fretIndex) ? (
                                                     <View>
                                                         {stringIndex === 0 ? (
-                                                            <View style={styles.barreChordStringLeft}>
-                                                                <Text style={styles.fingerText}>{data.position_fingers[stringIndex]}</Text>
+                                                            <View style={[styles.barreChordStringLeft, {backgroundColor: theme.primary}]}>
+                                                                <Text style={[styles.fingerText, {color: theme.background, backgroundColor: theme.primary}]}>{data.position_fingers[stringIndex]}</Text>
                                                             </View>
                                                         ) : stringIndex === 5 ? (
                                                             <View style={styles.fingerTextWrapper}>
-                                                                <View style={styles.barreChordStringRight}>
-                                                                    <Text style={styles.fingerText}>{data.position_fingers[stringIndex]}</Text>
+                                                                <View style={[styles.barreChordStringRight, {backgroundColor: theme.primary}]}>
+                                                                    <Text style={[styles.fingerText, {color: theme.background, backgroundColor: theme.primary}]}>{data.position_fingers[stringIndex]}</Text>
                                                                 </View>
                                                             </View>
                                                         ) : (
                                                             <View style={styles.fingerTextWrapper}>
-                                                                <View style={styles.barreChord}>
-                                                                    <Text style={styles.fingerText}>{data.position_fingers[stringIndex]}</Text>
+                                                                <View style={[styles.barreChord, {backgroundColor: theme.primary}]}>
+                                                                    <Text style={[styles.fingerText, {color: theme.background, backgroundColor: theme.primary}]}>{data.position_fingers[stringIndex]}</Text>
                                                                 </View>
                                                             </View>
                                                         )
@@ -93,18 +97,18 @@ export default function ChordDiagram({chordData}) {
                                                     </View>
 
                                                 ) : (
-                                                    <Text style={styles.fingerText}>{data.position_fingers[stringIndex]}</Text>
+                                                    <Text style={[styles.fingerText, {color: theme.background, backgroundColor: theme.primary}]}>{data.position_fingers[stringIndex]}</Text>
                                                 )}
                                             </View>
                                         ) : fret === -1 && fretIndex === 0 ? (
                                             <View>
-                                                <Text style={styles.unPlayedStringStyle}>
+                                                <Text style={[styles.unPlayedStringStyle, {color: theme.primary}]}>
                                                     X
                                                 </Text>
                                             </View>
                                         ) : fret === 0 && fretIndex === 0 ? (
                                             <View>
-                                                <Text style={styles.openStringStyle}>
+                                                <Text style={[styles.openStringStyle, {backgroundColor: theme.primary}]}>
                                                 </Text>
                                             </View>
                                         ) : null }
@@ -149,16 +153,12 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         position: 'relative',
     },
-    firstFret: {
-        borderTopColor: '#85B59C',
-    },
     barreChord: {
         zIndex: 100,
         width: 34,
         textAlign: 'center',
         alignItems: 'center',
         height: 22,
-        backgroundColor: '#85B59C',
         borderRadius: 1,
         fontWeight: 'bold',
     },
@@ -169,7 +169,6 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         alignItems: 'center',
         height: 22,
-        backgroundColor: '#85B59C',
         borderBottomLeftRadius: 8,
         borderTopLeftRadius: 8,
         borderBottomRightRadius: 1,
@@ -183,22 +182,10 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         alignItems: 'center',
         height: 22,
-        backgroundColor: '#85B59C',
         borderBottomRightRadius: 8,
         borderTopRightRadius: 8,
         borderBottomLeftRadius: 1,
         borderTopLeftRadius: 1,
-        fontWeight: 'bold',
-    },
-    barreChordFaded: {
-        zIndex: 100,
-        width: 40,
-        textAlign: 'center',
-        alignItems: 'center',
-        height: 22,
-        backgroundColor: '#85B59C',
-        opacity: .5,
-        borderRadius: 4,
         fontWeight: 'bold',
     },
     barreChordText: {
@@ -210,11 +197,9 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
     string: {
-        width: 1.5,
         height: '100%',
         alignItems: 'center',
         alignContent: 'center',
-        backgroundColor: '#85B59C',
         zIndex: 10,
     },
     lightString: {
@@ -233,8 +218,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     fingerText: {
-        backgroundColor: '#85B59C',
-        color: 'black',
         textAlign: 'center',
         width: 22,
         height: 22,

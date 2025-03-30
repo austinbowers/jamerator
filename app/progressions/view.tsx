@@ -2,22 +2,23 @@ import {View, Text, StyleSheet, ScrollView} from "react-native";
 import {useLocalSearchParams, Stack, useNavigation} from "expo-router";
 import React, {useEffect, useMemo, useState} from "react";
 import ChordDiagram from "@/components/ChordDiagram";
+import {useTheme} from "@/scripts/ThemeContext";
 
 export default function ProgressionView() {
-
+    const { theme } = useTheme();
     const navigation = useNavigation();
-    const { chords } = useLocalSearchParams();
+    const { chords, progressionTitle } = useLocalSearchParams();
     const [arrayChords, setArrayChords] = useState([]);
 
     useEffect(() => {
         navigation.setOptions({
             headerShown: true,
-            title: '',
+            title: progressionTitle,
             headerBackTitle: 'Back',
             headerStyle: {
-                backgroundColor: '#000000',
+                backgroundColor: theme.background,
             },
-            headerTintColor: '#85B59C',
+            headerTintColor: theme.primary,
         });
     }, [navigation]);
 
@@ -26,7 +27,7 @@ export default function ProgressionView() {
     }, []);
 
     return (
-        <ScrollView style={{backgroundColor: '#000000'}}>
+        <ScrollView style={{backgroundColor: theme.background}}>
             <View>
                 {arrayChords && arrayChords.map((data, index) => (
                     <ChordDiagram key={index} chordData={data}></ChordDiagram>

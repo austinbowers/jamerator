@@ -4,9 +4,11 @@ import {useSQLiteContext} from "expo-sqlite";
 import {useFocusEffect, Link} from "expo-router";
 import ChordDiagram from "@/components/ChordDiagram";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
+import {useTheme} from "@/scripts/ThemeContext";
 
 
 export default function Chords() {
+    const { theme } = useTheme();
 
     const database = useSQLiteContext();
     const [chordProgressions, setChordProgressions] = useState<any>([]);
@@ -61,39 +63,39 @@ export default function Chords() {
     );
 
     return (
-        <View style={{backgroundColor: '#000000', flex: 1}}>
-            <Text style={{color: 'white', fontWeight: 'bold', fontSize: 20, paddingHorizontal: 16, paddingTop: 24, paddingBottom: 16}}>My Chord Progressions</Text>
+        <View style={{backgroundColor: theme.background, flex: 1}}>
+            <Text style={{color: theme.text, fontWeight: 'bold', fontSize: 20, paddingHorizontal: 16, paddingTop: 24, paddingBottom: 16}}>My Chord Progressions</Text>
             <SafeAreaView style={{ }}>
                 <View>
                     {chordsLoading ? (
                         <View style={{marginTop: 24}}>
-                            <ActivityIndicator size="large" color="#85B59C" />
+                            <ActivityIndicator size="large" color={theme.primary} />
                         </View>
                     ) : (
                         <View>
                             {chordProgressions &&
                                 <FlatList keyExtractor={(item) => item.id.toString()} style={{marginBottom: 70 }} data={chordProgressions} renderItem={({ item }) => {
                                     return (
-                                        <View style={{padding: 16, backgroundColor: '#0F1914', margin: 10, borderRadius: 6, position: 'relative', overflow: 'hidden' }} key={item.id}>
+                                        <View style={{padding: 16, backgroundColor: theme.primary30, margin: 10, borderRadius: 6, position: 'relative', overflow: 'hidden' }} key={item.id}>
 
                                             <Link
                                                   href={{
                                                       pathname: '/progressions/view',
-                                                      params: { chords: JSON.stringify(item.chords) }
+                                                      params: { chords: JSON.stringify(item.chords),  progressionTitle:  item.progression_genre + ' in '  + item.progression_key }
                                                   }}>
                                                 <View style={{paddingBottom: 16, width: '100%'}}>
-                                                    <Text style={{color: 'white', fontWeight: 'bold', fontSize: 16}}>{item.progression_genre} in {item.progression_key}</Text>
+                                                    <Text style={{color: theme.text, fontWeight: 'bold', fontSize: 16}}>{item.progression_genre} in {item.progression_key}</Text>
                                                 </View>
                                                 <View style={{flexDirection: 'row', flexWrap: 'wrap', gap: 8}}>
                                                 {item.chords && item.chords.map((chord) => {
                                                     return (
-                                                       <Text key={chord.id} style={styles.badge}>{chord.key}{chord.suffix}</Text>
+                                                       <Text key={chord.id} style={[styles.badge, {backgroundColor: theme.primary, color: theme.buttonText}]}>{chord.key}{chord.suffix}</Text>
                                                     )
                                                 })}
                                                 </View>
                                             </Link>
                                             <TouchableOpacity onPress={() => (handleDelete(item.id))} style={{position: 'absolute', alignItems: 'center', alignContent: 'center',  right: 0, top: 12, height: 40, width: 40 }}>
-                                                <FontAwesome color={'green'} name={'trash-o'} size={20}></FontAwesome>
+                                                <FontAwesome color={theme.primary} name={'trash-o'} size={20}></FontAwesome>
                                             </TouchableOpacity>
                                         </View>
                                     )
@@ -109,7 +111,6 @@ export default function Chords() {
 
 const styles = StyleSheet.create({
     badge: {
-        backgroundColor: '#85B59C',
         color: 'black',
         paddingHorizontal: 8,
         paddingVertical: 4,
