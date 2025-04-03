@@ -31,8 +31,8 @@ export default function ProgressionView() {
             <ScrollView style={{backgroundColor: theme.background, padding: 16}}>
                 <View style={{backgroundColor: theme.background, flexDirection: 'row', flexWrap: 'wrap', alignSelf: 'stretch' }}>
                     {arrayChords && arrayChords.map((data, index) => (
-                        <View key={index} style={{backgroundColor: theme.primary900, width: 'auto', minWidth: '23.5%', flex:1, margin:2, padding: 12}}>
-                            <Text style={{color: theme.text, fontSize: 18, fontWeight: 'bold'}}>{data.key}{data.suffix}</Text>
+                        <View key={index} style={{backgroundColor: theme.primary900, width: 'auto', minWidth: '23.5%', flex:1, margin:2, padding: 10}}>
+                            <Text style={{color: theme.text, fontSize: 16, fontWeight: 'bold'}}>{data.key}{data.suffix}</Text>
                         </View>
                     ))}
                 </View>

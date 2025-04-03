@@ -1,7 +1,6 @@
 import {ActivityIndicator, ScrollView, StyleSheet, Text,  View} from "react-native";
 import ChordDiagram from "@/components/ChordDiagram";
 import React, {useEffect, useState} from "react";
-import {fetchChatCompletion} from "@/scripts/api";
 import {useSQLiteContext} from "expo-sqlite";
 import { useActionSheet } from '@expo/react-native-action-sheet';
 import { useTheme } from '@/scripts/ThemeContext';
@@ -9,36 +8,33 @@ import CustomButton from "@/components/Button";
 import CustomOutlineButton from "@/components/OutlineButton";
 import FlashMessage, { showMessage } from 'react-native-flash-message';
 
-
-
 export default function Index() {
+
     const { theme } = useTheme();
-
     const db = useSQLiteContext();
-
-    const showSuccessAlert = () => {
-        showMessage({
-            message: "Saved Successfully",
-            description: "Chord progression saved to My Jams",
-            type: "success",
-            icon: "success",
-        });
-    };
-
-
     const [chordsLoading, setChordsLoading] = useState(false)
     const [progressionData, setProgressionData] = useState([])
     const [chordData, setChordData] = useState([])
+    const { showActionSheetWithOptions } = useActionSheet();
+    const [selectedKey, setSelectedKey] = useState('E');
+    const [selectedGenre, setSelectedGenre] = useState('Blues');
+    const keys = [
+        "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B",
+        "Cm", "C#m", "Dm", "D#m", "Em", "Fm", "F#m", "Gm", "G#m", "Am", "A#m", "Bm"
+    ];
+    const genres = [
+        "Rock", "Blues", "Jazz", "Pop", "Folk", "Country", "Funk"
+    ];
+
     useEffect(() => {
         const fetchChords = async () => {
             if (progressionData.length > 0) {
                 setChordsLoading(true);
                 let chordsArray = [];
-
                 for (const chord of progressionData) {
                     try {
                         const result = await db.getFirstAsync(
-                            "SELECT * FROM chords WHERE key = $keyValue AND suffix = $suffixValue ORDER BY id LIMIT 1",
+                            "SELECT * FROM chords WHERE key = $keyValue AND suffix = $suffixValue ORDER BY RANDOM() LIMIT 1",
                             { $keyValue: chord.key, $suffixValue: chord.suffix }
                         );
 
@@ -55,54 +51,8 @@ export default function Index() {
                 setChordsLoading(false);
             }
         };
-
         fetchChords();
     }, [progressionData]); // Dependency on progressionData
-
-    const getCompletion = async () => {
-        setChordsLoading(true);
-        try {
-            const response = await fetchChatCompletion(
-                `Using music theory principles for a 6-string guitar, generate a random chord progression in the genre "${selectedGenre}" and key "${selectedKey}". 
-                The progression should follow typical chord sequences based on the selected genre while adhering to the following requirements:
-                
-                - Output the progression in this format: 
-                  [{key: 'A', suffix: 'add9'}, {key: 'D', suffix: '7'}, ...]
-                  
-                - The 'key' must be one of the following:
-                  (A, Ab, B, Bb, C, C#, D, Db, E, E#, Eb, F, F#, G)
-                
-                - The 'suffix' must be selected from the following list:
-                  (11, 13, 5, 6, 69, 7#9, 7, 7b5, 7b9, 7sus4, 9#11, 9, 9b5, /Ab, /B, /Bb, /Csharp, /C, /D, /E, /Eb, /Fsharp, /F, /G#, /G, add11, add9, alt, aug, aug7, aug9, dim, dim7, m11, m6, m69, m7, m7b5, m9, m9/C, m9/G, m/Ab, m/B, m/Bb, m/C#, m/C, m/D, m/E, m/Eb, m/F#, m/F, m/G#, m/G, madd9, maj11, maj13, maj7#5, maj7, maj7b5, maj7sus2, maj9, major, minor, mmaj11, mmaj7, mmaj7b5, mmaj9, sus, sus2, sus2sus4, sus4)
-            
-                - The chord progression should be musically coherent within the context of the selected genre and key.
-                - Only return the chord progression as JSON code without any additional explanations or comments.
-                
-                Do not wrap the JSON output in JSON markers.`
-            );
-            const formattedString = response.replace(/'/g, '"').replace(/(\w+):/g, '"$1":');
-            const parsedArray = JSON.parse(formattedString);
-            setProgressionData(parsedArray); // This triggers the useEffect to fetch chords
-        } catch (error) {
-            console.error("API Error:" + error);
-            throw error;
-        } finally {
-            setChordsLoading(false);
-        }
-    };
-
-    const { showActionSheetWithOptions } = useActionSheet();
-    const [selectedKey, setSelectedKey] = useState('E');
-    const [selectedGenre, setSelectedGenre] = useState('Blues');
-
-    const keys = [
-        "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B",
-        "Cm", "C#m", "Dm", "D#m", "Em", "Fm", "F#m", "Gm", "G#m", "Am", "A#m", "Bm"
-    ];
-
-    const genres = [
-        "Rock", "Blues", "Jazz", "Pop", "Folk", "Country", "Funk", "Metal", "Neo-Soul"
-    ]
 
     const showKeyPicker = () => {
         showActionSheetWithOptions({
@@ -128,9 +78,16 @@ export default function Index() {
         });
     };
 
+    const showSuccessAlert = () => {
+        showMessage({
+            message: "Saved Successfully",
+            description: "Chord progression saved to My Jams",
+            type: "success",
+            icon: "success",
+        });
+    };
 
     const handleSave = async () => {
-        // Step 1: Create the table if it doesn't already exist
         await db.runAsync(
             `CREATE TABLE IF NOT EXISTS my_jams (
              id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -139,17 +96,24 @@ export default function Index() {
              progression_genre TEXT
              );`
         );
-
-        // Step 2: Get all chord ids as a comma-separated string
         const chordIds = chordData.map(chord => chord.id).join(',');
-
-        // Step 3: Insert the values into the `my_jams` table
         await db.runAsync(
             "INSERT INTO my_jams (chord_ids, progression_key, progression_genre) VALUES (?, ?, ?);",
-            [chordIds, selectedKey, selectedGenre] // Correct parameter passing
+            [chordIds, selectedKey, selectedGenre]
         );
-
         showSuccessAlert();
+    };
+
+    const getProgressions = async () => {
+        try {
+            const result = await db.getFirstAsync(
+                'SELECT * FROM progressions WHERE genre = ? AND key = ? ORDER BY RANDOM() LIMIT 1',
+                [selectedGenre, selectedKey]
+            );
+            setProgressionData(JSON.parse(result.progressions));
+        } catch (error) {
+            console.error("Error querying SQLite database", error);
+        }
     };
 
     return (
@@ -175,7 +139,7 @@ export default function Index() {
                         </View>
                     ) : (
                         <View style={{marginTop: 16}}>
-                            <CustomButton iconName={'music'} title={'Generate'} onPress={getCompletion}></CustomButton>
+                            <CustomButton iconName={'music'} title={'Generate'} onPress={getProgressions}></CustomButton>
                         </View>
                     )}
                 </View>
@@ -184,8 +148,8 @@ export default function Index() {
                         <CustomOutlineButton iconName={'save'} onPress={handleSave} title={"Add to My Jams"}></CustomOutlineButton>
                         <View style={{marginTop: 32, backgroundColor: theme.background, flexDirection: 'row', flexWrap: 'wrap', alignSelf: 'stretch' }}>
                             {chordData && chordData.map((data, index) => (
-                                <View key={index} style={{backgroundColor: theme.primary900, width: 'auto', minWidth: '23.5%', flex:1, margin:2, padding: 12}}>
-                                    <Text style={{color: theme.text, fontSize: 18, fontWeight: 'bold'}}>{data.key}{data.suffix}</Text>
+                                <View key={index} style={{backgroundColor: theme.primary900, width: 'auto', minWidth: '23.5%', flex:1, margin:2, padding: 10}}>
+                                    <Text style={{color: theme.text, fontSize: 16, fontWeight: 'bold'}}>{data.key}{data.suffix}</Text>
                                 </View>
                             ))}
                         </View>

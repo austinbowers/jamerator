@@ -57,7 +57,7 @@ export default function ChordDiagram({chordData}) {
                                 <View style={{position: 'absolute', top:0, width: '100%', height: 2, backgroundColor: theme.primary}}></View>
                             )}
                             {data.processedBaseFret > 1 && fretIndex === 0 &&
-                                <Text style={{position: 'absolute', left: -45, top:9,  color: theme.text, fontSize: 16, fontWeight: 'bold'}}>{data.processedBaseFret}fr</Text>
+                                <Text style={{position: 'absolute', left: -70, top:9, width: 50, color: theme.text, fontSize: 16, fontWeight: 'bold', textAlign: 'right'}}>{data.processedBaseFret}fr</Text>
                             }
                             {/* Display barre chord if it exists at the current fret */}
                             {data.barres && data.barres - data.processedBaseFret === fretIndex && (

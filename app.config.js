@@ -11,7 +11,7 @@ export default {
         },
         icon: "./assets/images/Jamerator_Icon.png",
         splash: {
-            image: "./assets/icons/splash-icon-light.png",  // Ensure image is specified here
+            image: "./assets/icons/splash-icon-dark.png",  // Ensure image is specified here
             resizeMode: "contain",
             backgroundColor: "#0A130E",
             dark: {
@@ -26,7 +26,7 @@ export default {
                 "expo-splash-screen",
                 {
                     backgroundColor: "#0A130E",
-                    image: "./assets/icons/splash-icon-light.png",
+                    image: "./assets/icons/splash-icon-dark.png",
                     dark: {
                         image: "./assets/icons/splash-icon-dark.png",
                         backgroundColor: "#0A130E"

@@ -22,8 +22,8 @@ function AppContent() {
     return (
         <>
             <SQLiteProvider
-                databaseName="chords.db"
-                assetSource={{ assetId: require("../assets/chords.db") }}
+                databaseName="jamerator_04_02_2025.db"
+                assetSource={{ assetId: require("../assets/jamerator_04_02_2025.db") }}
             >
                 <ActionSheetProvider>
                     <View style={{ flex: 1, backgroundColor: theme.background }}>
